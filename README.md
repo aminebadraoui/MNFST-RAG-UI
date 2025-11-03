@@ -1,260 +1,275 @@
-# RAG Chat Admin Dashboard
+# RAG Chat Admin Dashboard - Simplified Multi-Tenant
 
-A modern, responsive admin dashboard for managing a RAG (Retrieval-Augmented Generation) system with chatbot functionality, document management, and social media integration.
+A simplified multi-tenant RAG Chat SaaS solution built with React, TypeScript, and Supabase. Perfect for self-hosting on Hostinger.
 
-## Project Overview
+## 🎯 What This Is
 
-This dashboard provides a comprehensive interface for:
-- Managing chatbot sessions with conversation history
-- Uploading and managing documents for RAG processing
-- Adding and managing social media links
-- Configuring API endpoints and authentication settings
+A streamlined multi-tenant RAG Chat system with three user roles:
+- **Superadmin**: Creates and manages tenants
+- **Tenant Admin**: Manages documents, social media, and users for their tenant  
+- **User**: Accesses chatbot with tenant-specific knowledge base
 
-## Technology Stack
+**Key Features:**
+- ✅ Simple 3-role authentication system
+- ✅ Tenant data isolation with row-level security
+- ✅ Document upload and management
+- ✅ Social media integration for knowledge base
+- ✅ Real-time chat with streaming responses
+- ✅ Self-hosted deployment ready
+- ✅ Supabase database integration
 
-- **Frontend**: React 18 with TypeScript
-- **Styling**: Tailwind CSS
-- **UI Components**: Headless UI
-- **State Management**: React Context + useReducer
-- **HTTP Client**: Axios with interceptors
-- **Authentication**: JWT with refresh token support
-- **Build Tool**: Vite
-- **Routing**: React Router
-
-## Features
-
-### Authentication System
-- JWT-based authentication with refresh token support
-- Secure token storage and automatic refresh
-- Protected routes and authentication guards
-- Login/logout functionality
-
-### Chat Interface
-- Session management (create new, select previous)
-- Real-time chat interface with message history
-- User and bot message differentiation
-- Session persistence and management
-
-### Document Management
-- Drag-and-drop file upload
-- Support for common formats (PDF, TXT, DOCX, etc.)
-- Upload progress and status feedback
-- Document list management with deletion
-
-### Social Media Integration
-- Form to add/remove social media URLs
-- Basic URL validation and platform detection
-- Link management interface
-- Visual platform indicators
-
-### Settings and Configuration
-- Configurable API endpoints
-- Authentication status display
-- Connection status indicators
-- Settings persistence
-
-## Project Structure
-
-```
-rag-chat-ui/
-├── public/                     # Static assets
-├── src/
-│   ├── components/            # Reusable UI components
-│   │   ├── ui/               # Base UI components
-│   │   ├── layout/           # Layout components
-│   │   ├── auth/             # Authentication components
-│   │   ├── chat/             # Chat components
-│   │   ├── documents/        # Document components
-│   │   ├── social/           # Social media components
-│   │   └── settings/         # Settings components
-│   ├── pages/                # Page components
-│   ├── hooks/                # Custom React hooks
-│   ├── services/             # API services
-│   ├── context/              # React contexts
-│   ├── types/                # TypeScript definitions
-│   ├── utils/                # Utility functions
-│   └── styles/               # Global styles
-├── docs/                     # Documentation
-└── configuration files       # Tailwind, TypeScript, etc.
-```
-
-## Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js (v16 or higher)
-- npm or yarn
+- Node.js 18+ 
+- Supabase account
+- Hostinger hosting account (optional)
 
 ### Installation
 
-1. Clone the repository:
 ```bash
-git clone <repository-url>
+# Clone repository
+git clone https://github.com/your-org/rag-chat-ui.git
 cd rag-chat-ui
-```
 
-2. Install dependencies:
-```bash
+# Install dependencies
 npm install
-```
 
-3. Set up environment variables:
-```bash
+# Set up environment variables
 cp .env.example .env
-# Edit .env with your configuration
-```
+# Edit .env with your Supabase credentials
 
-4. Start the development server:
-```bash
+# Start development server
 npm run dev
 ```
 
-5. Open your browser and navigate to `http://localhost:5173`
-
-### Environment Variables
-
-Create a `.env` file in the root directory:
+### Environment Setup
 
 ```env
-VITE_API_BASE_URL=http://localhost:3001/api
+# Supabase Configuration
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+
+# API Configuration
+VITE_API_URL=http://localhost:3001
 VITE_APP_NAME=RAG Chat Dashboard
-VITE_APP_VERSION=1.0.0
 ```
 
-## API Integration
+## 📚 Documentation
 
-The dashboard is designed to work with a backend API that provides the following endpoints:
+### 🚀 Getting Started
+- **[Documentation Overview](./docs/README.md)** - Complete documentation hub
+- **[Development Guide](./docs/DEVELOPMENT.md)** - Setup, patterns, testing, and tools
 
-### Authentication
-- `POST /auth/login` - User login
-- `POST /auth/refresh` - Refresh access token
-- `POST /auth/logout` - User logout
+### 🏗️ Core Architecture
+- **[Architecture Guide](./docs/ARCHITECTURE.md)** - System design, multi-tenant architecture, security
+- **[Database Schema](./docs/DATABASE.md)** - Database structure, types, and relationships
 
-### Chat Sessions
-- `GET /sessions` - Get user sessions
-- `POST /sessions` - Create new session
-- `GET /sessions/:id/messages` - Get session messages
-- `POST /sessions/:id/messages` - Send message
+### 📡 API & Integration
+- **[API Reference](./docs/API.md)** - Complete API reference with authentication and endpoints
 
-### Documents
-- `POST /documents/upload` - Upload document
-- `GET /documents` - Get document list
-- `DELETE /documents/:id` - Delete document
+### 🚀 Deployment
+- **[Deployment Guide](./docs/DEPLOYMENT.md)** - Production deployment on Hostinger with Supabase
 
-### Social Media
-- `GET /social-links` - Get social media links
-- `POST /social-links` - Add social media link
-- `DELETE /social-links/:id` - Delete social media link
+## 🏗️ System Architecture
 
-For detailed API specifications, see [API Specification](./api-specification.md).
+### User Roles & Access
 
-## Development
+```mermaid
+graph TD
+    A[Superadmin] --> B[Create Tenants]
+    A --> C[Manage All Tenants]
+    A --> D[System Administration]
+    
+    E[Tenant Admin] --> F[Manage Documents]
+    E --> G[Manage Social Media]
+    E --> H[Manage Tenant Users]
+    
+    I[User] --> J[Access Chatbot]
+    I --> K[Chat with Knowledge Base]
+    
+    L[Tenant Data] --> M[Row Level Security]
+    L --> N[Complete Isolation]
+```
+
+### Technology Stack
+
+**Frontend:**
+- React 18 with TypeScript
+- Tailwind CSS for styling
+- Vite for fast development
+- React Router for navigation
+
+**Backend:**
+- Node.js with Express
+- Supabase for database and auth
+- JWT for session management
+- PostgreSQL with pgvector
+
+**Infrastructure:**
+- Hostinger for hosting
+- Supabase for managed database
+- Simple deployment without complex orchestration
+
+## 🎯 Key Features
+
+### 💬 Chat System
+- Real-time chat with streaming responses
+- Session management and history
+- Tenant-specific knowledge base
+- Message threading and organization
+
+### 📄 Document Management
+- File upload with progress tracking
+- Multiple file upload support
+- Document processing and indexing
+- Tenant-isolated storage
+
+### 🔗 Social Media Integration
+- Add social media links for knowledge base
+- Support for major platforms (Twitter, Facebook, LinkedIn, etc.)
+- Tenant-specific management
+
+### 👥 User Management
+- Three-role authentication system
+- Role-based access control
+- Tenant-specific user management
+- Simple JWT-based authentication
+
+### 🏢 Multi-Tenant Support
+- Complete data isolation between tenants
+- Tenant creation and management
+- Row-level security in database
+- Self-hosted deployment ready
+
+## 🚀 Deployment
+
+### Self-Hosted on Hostinger
+
+```bash
+# 1. Build application
+npm run build
+
+# 2. Deploy to Hostinger
+# Upload build files to Hostinger hosting
+# Configure environment variables
+# Set up domain and SSL
+```
+
+### Supabase Setup
+
+1. **Create Supabase Project**
+   - Go to [supabase.com](https://supabase.com)
+   - Create new project
+   - Get project URL and keys
+
+2. **Set Up Database**
+   - Run schema from [Database Schema](./docs/DATABASE.md)
+   - Enable row level security
+   - Create necessary indexes
+
+3. **Configure Authentication**
+   - Enable JWT authentication
+   - Set up auth providers
+   - Configure redirect URLs
+
+## 📋 Project Status
+
+### ✅ Completed
+- [x] Simplified multi-tenant architecture
+- [x] Three-role authentication system
+- [x] Basic tenant data isolation
+- [x] Essential CRUD operations
+- [x] Self-hosted deployment ready
+- [x] Comprehensive documentation
+
+### 🔄 In Progress
+- [ ] Implementation of simplified system
+- [ ] Migration from complex to simple
+- [ ] Testing and validation
+
+## 🛠️ Development
 
 ### Available Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run type-check` - Run TypeScript type checking
+```bash
+# Start development server
+npm run dev
 
-### Code Style
+# Build for production
+npm run build
 
-This project uses:
-- ESLint for code linting
-- Prettier for code formatting
-- TypeScript for type safety
-- Conventional Commits for commit messages
+# Preview production build
+npm run preview
 
-### Testing
+# Run tests
+npm test
 
-- `npm run test` - Run unit tests
-- `npm run test:coverage` - Run tests with coverage
-- `npm run test:e2e` - Run end-to-end tests
+# Run linting
+npm run lint
 
-## Design System
+# Type checking
+npm run type-check
+```
 
-The dashboard uses a custom design system built with Tailwind CSS:
+### Project Structure
 
-### Color Palette
-- Primary: Blue (#3B82F6)
-- Secondary: Gray (#6B7280)
-- Success: Green (#10B981)
-- Warning: Yellow (#F59E0B)
-- Error: Red (#EF4444)
+```
+src/
+├── components/          # Reusable UI components
+│   ├── auth/          # Authentication components
+│   ├── layout/        # Layout components
+│   └── ui/            # Base UI components
+├── context/           # React contexts
+├── pages/             # Page components
+├── services/          # API services
+│   └── mock/          # Mock API for development
+├── types/             # TypeScript type definitions
+└── styles/            # Global styles
+```
 
-### Typography
-- Font Family: Inter, system-ui, sans-serif
-- Font Sizes: 12px to 30px
-- Font Weights: 400, 500, 600, 700
+## 🤝 Contributing
 
-### Spacing
-- Base unit: 4px
-- Scale: 4px, 8px, 12px, 16px, 24px, 32px, 48px, 64px
+We welcome contributions! Please see our [Development Guide](./docs/DEVELOPMENT.md) for:
+- Development workflow
+- Code standards
+- Testing requirements
+- Documentation guidelines
 
-## Accessibility
+## 📞 Getting Help
 
-The dashboard is built with accessibility in mind:
-- Semantic HTML5 elements
-- ARIA labels and roles
-- Keyboard navigation support
-- Focus management
-- Screen reader compatibility
-- Color contrast compliance (WCAG 2.1 AA)
+### 📚 Documentation First
+1. Check [Documentation Overview](./docs/README.md) for complete guides
+2. Search specific documentation for your topic
+3. Review the appropriate guide for your role
 
-## Performance
+### 🐛 Issue Reporting
+1. Check existing issues for duplicates
+2. Use issue templates when creating new issues
+3. Include detailed reproduction steps
 
-Performance optimizations include:
-- Code splitting with React.lazy
-- Component memoization
-- Image optimization
-- API request debouncing
-- Bundle size optimization
+### 💬 Community Support
+1. Join our Discord community
+2. Participate in GitHub discussions
+3. Ask questions in appropriate channels
 
-## Security
+## 🔗 Links
 
-Security measures implemented:
-- Secure token storage
-- XSS prevention
-- CSRF protection
-- Input validation and sanitization
-- HTTPS enforcement
+- **Documentation**: [docs/README.md](./docs/README.md)
+- **API Reference**: [docs/API.md](./docs/API.md)
+- **Architecture Guide**: [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)
+- **Development Guide**: [docs/DEVELOPMENT.md](./docs/DEVELOPMENT.md)
+- **Database Schema**: [docs/DATABASE.md](./docs/DATABASE.md)
+- **Deployment Guide**: [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)
+- **Main Repository**: [github.com/your-org/rag-chat-ui](https://github.com/your-org/rag-chat-ui)
+- **Issue Tracker**: [github.com/your-org/rag-chat-ui/issues](https://github.com/your-org/rag-chat-ui/issues)
 
-## Browser Support
-
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass
-6. Submit a pull request
-
-## Documentation
-
-- [Architecture Plan](./architecture-plan.md) - Detailed system architecture
-- [Dashboard Layout](./dashboard-layout.md) - Visual layout and component hierarchy
-- [API Specification](./api-specification.md) - Complete API documentation
-- [Implementation Guide](./implementation-guide.md) - Code examples and best practices
-- [Project Structure](./project-structure.md) - File organization and naming conventions
-- [Development Roadmap](./development-roadmap.md) - Timeline and milestones
-
-## License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Support
+---
 
-For support and questions:
-- Create an issue in the repository
-- Check the documentation
-- Review the FAQ section
-
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for a list of changes and version history.
+**Last Updated**: November 2024  
+**Version**: 2.0.0 (Simplified)  
+**Maintainers**: RAG Chat Development Team

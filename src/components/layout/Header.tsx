@@ -2,12 +2,16 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
-import { 
-  ChatBubbleLeftIcon, 
-  Cog6ToothIcon, 
+import { UserRole } from '../../types';
+import {
+  ChatBubbleLeftIcon,
+  Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
   SunIcon,
-  MoonIcon 
+  MoonIcon,
+  ShieldCheckIcon,
+  UserCircleIcon,
+  BuildingOfficeIcon
 } from '@heroicons/react/24/outline';
 
 const Header: React.FC = () => {
@@ -23,6 +27,21 @@ const Header: React.FC = () => {
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
+
+  const getRoleBadge = (role: UserRole) => {
+    switch (role) {
+      case 'superadmin':
+        return { color: 'bg-red-100 text-red-800', icon: ShieldCheckIcon, text: 'Superadmin' };
+      case 'tenant_admin':
+        return { color: 'bg-blue-100 text-blue-800', icon: BuildingOfficeIcon, text: 'Tenant Admin' };
+      case 'user':
+        return { color: 'bg-green-100 text-green-800', icon: UserCircleIcon, text: 'User' };
+      default:
+        return { color: 'bg-gray-100 text-gray-800', icon: UserCircleIcon, text: 'Unknown' };
+    }
+  };
+
+  const roleBadge = user ? getRoleBadge(user.role) : null;
 
   return (
     <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
@@ -76,6 +95,14 @@ const Header: React.FC = () => {
 
           {/* Right side */}
           <div className="flex items-center space-x-4">
+            {/* Role Badge */}
+            {roleBadge && (
+              <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${roleBadge.color}`}>
+                <roleBadge.icon className="w-3 h-3 mr-1" aria-hidden="true" />
+                {roleBadge.text}
+              </div>
+            )}
+
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}

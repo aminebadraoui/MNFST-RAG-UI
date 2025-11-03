@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { z } from 'zod';
-import { authAPI } from '../services/authAPI';
+import { authAPI } from '../services';
 import { User } from '../types';
 
 interface AuthState {
@@ -118,49 +118,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
       
-      // Mock authentication for development
-      if (email === 'demo@example.com' && password === 'password') {
-        const mockUser: User = {
-          id: 'demo-user-123',
-          email: 'demo@example.com',
-          name: 'Demo User',
-        };
-        
-        const mockTokens = {
-          accessToken: 'mock-access-token-12345',
-          refreshToken: 'mock-refresh-token-67890',
-        };
-        
-        // Store tokens in localStorage
-        localStorage.setItem('accessToken', mockTokens.accessToken);
-        localStorage.setItem('refreshToken', mockTokens.refreshToken);
-        localStorage.setItem('userData', JSON.stringify(mockUser));
-        
-        dispatch({
-          type: 'LOGIN_SUCCESS',
-          payload: {
-            user: mockUser,
-            accessToken: mockTokens.accessToken,
-            refreshToken: mockTokens.refreshToken,
-          },
-        });
-        return;
-      }
-      
-      // Try real API if not mock credentials
+      // Try API authentication
       const response = await authAPI.login(email, password);
       
       // Store tokens in localStorage
-      localStorage.setItem('accessToken', response.accessToken);
-      localStorage.setItem('refreshToken', response.refreshToken);
+      localStorage.setItem('accessToken', response.tokens.accessToken);
+      localStorage.setItem('refreshToken', response.tokens.refreshToken);
       localStorage.setItem('userData', JSON.stringify(response.user));
       
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: {
           user: response.user,
-          accessToken: response.accessToken,
-          refreshToken: response.refreshToken,
+          accessToken: response.tokens.accessToken,
+          refreshToken: response.tokens.refreshToken,
         },
       });
     } catch (error: any) {

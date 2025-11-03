@@ -3,10 +3,14 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { SettingsProvider } from './context/SettingsContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import RoleBasedRoute from './components/auth/RoleBasedRoute';
 import LoginPage from './pages/LoginPage';
 import ChatPage from './pages/ChatPage';
 import DocumentsPage from './pages/DocumentsPage';
 import SocialPage from './pages/SocialPage';
+import SettingsPage from './pages/SettingsPage';
+import TenantsPage from './pages/TenantsPage';
+import UsersPage from './pages/UsersPage';
 import NotFoundPage from './pages/NotFoundPage';
 import { AppLayout } from './components/layout';
 
@@ -27,21 +31,66 @@ function App() {
             <Route path="/chat" element={
               <ProtectedRoute>
                 <AppLayout>
-                  <ChatPage />
+                  <RoleBasedRoute
+                    roles={['superadmin', 'tenant_admin', 'user']}
+                    element={<ChatPage />}
+                    fallback={<Navigate to="/chat" replace />}
+                  />
                 </AppLayout>
               </ProtectedRoute>
             } />
             <Route path="/documents" element={
               <ProtectedRoute>
                 <AppLayout>
-                  <DocumentsPage />
+                  <RoleBasedRoute
+                    roles={['superadmin', 'tenant_admin']}
+                    element={<DocumentsPage />}
+                    fallback={<Navigate to="/chat" replace />}
+                  />
                 </AppLayout>
               </ProtectedRoute>
             } />
             <Route path="/social" element={
               <ProtectedRoute>
                 <AppLayout>
-                  <SocialPage />
+                  <RoleBasedRoute
+                    roles={['superadmin', 'tenant_admin']}
+                    element={<SocialPage />}
+                    fallback={<Navigate to="/chat" replace />}
+                  />
+                </AppLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <RoleBasedRoute
+                    roles={['superadmin', 'tenant_admin', 'user']}
+                    element={<SettingsPage />}
+                    fallback={<Navigate to="/chat" replace />}
+                  />
+                </AppLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/tenants" element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <RoleBasedRoute
+                    roles={['superadmin']}
+                    element={<TenantsPage />}
+                    fallback={<Navigate to="/chat" replace />}
+                  />
+                </AppLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/users" element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <RoleBasedRoute
+                    roles={['superadmin', 'tenant_admin']}
+                    element={<UsersPage />}
+                    fallback={<Navigate to="/chat" replace />}
+                  />
                 </AppLayout>
               </ProtectedRoute>
             } />

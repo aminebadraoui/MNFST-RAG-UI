@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { 
+import {
   ChatBubbleLeftIcon,
   DocumentTextIcon,
   LinkIcon,
@@ -8,9 +8,13 @@ import {
   PlusIcon,
   ChatBubbleLeftRightIcon,
   DocumentIcon,
-  ShareIcon
+  ShareIcon,
+  BuildingOfficeIcon,
+  UsersIcon,
+  ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
+import { UserRole } from '../../types';
 
 interface SidebarProps {
   sidebarOpen?: boolean;
@@ -23,28 +27,74 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
-  const navigation = [
-    {
-      name: 'Chat',
-      href: '/chat',
-      icon: ChatBubbleLeftRightIcon,
-      current: location.pathname === '/chat',
-    },
-    {
-      name: 'Documents',
-      href: '/documents',
-      icon: DocumentTextIcon,
-      current: location.pathname === '/documents',
-    },
-    {
-      name: 'Social Media',
-      href: '/social',
-      icon: ShareIcon,
-      current: location.pathname === '/social',
-    },
-  ];
+  // Role-based navigation
+  const getNavigationItems = () => {
+    const baseNavigation = [
+      {
+        name: 'Chat',
+        href: '/chat',
+        icon: ChatBubbleLeftRightIcon,
+        current: location.pathname === '/chat',
+      },
+      {
+        name: 'Settings',
+        href: '/settings',
+        icon: Cog6ToothIcon,
+        current: location.pathname === '/settings',
+      },
+    ];
+
+    const adminNavigation = [
+      {
+        name: 'Documents',
+        href: '/documents',
+        icon: DocumentTextIcon,
+        current: location.pathname === '/documents',
+      },
+      {
+        name: 'Social Media',
+        href: '/social',
+        icon: ShareIcon,
+        current: location.pathname === '/social',
+      },
+    ];
+
+    const superadminNavigation = [
+      {
+        name: 'Tenants',
+        href: '/tenants',
+        icon: BuildingOfficeIcon,
+        current: location.pathname === '/tenants',
+      },
+      {
+        name: 'Users',
+        href: '/users',
+        icon: UsersIcon,
+        current: location.pathname === '/users',
+      },
+    ];
+
+    let navigation = [...baseNavigation];
+
+    if (user?.role === 'superadmin' || user?.role === 'tenant_admin') {
+      navigation = [...navigation, ...adminNavigation];
+    }
+
+    if (user?.role === 'superadmin') {
+      navigation = [...navigation, ...superadminNavigation];
+    }
+
+    return navigation;
+  };
+
+  const navigation = getNavigationItems();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <>
@@ -98,6 +148,16 @@ const Sidebar: React.FC<SidebarProps> = ({
             })}
           </nav>
 
+          {/* Logout Button */}
+          <div className="px-2 py-2">
+            <button
+              onClick={handleLogout}
+              className="group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
+            >
+              <ArrowRightOnRectangleIcon className="mr-3 h-5 w-5 flex-shrink-0" />
+              Logout
+            </button>
+          </div>
 
           {/* User info */}
           <div className="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">

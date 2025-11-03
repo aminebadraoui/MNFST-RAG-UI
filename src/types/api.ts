@@ -24,3 +24,18 @@ export interface PaginatedResponse<T> {
     totalPages: number;
   };
 }
+
+export interface MockConfig {
+  enabled: boolean;
+  delay: {
+    min: number;
+    max: number;
+  };
+  errorRate: number; // 0-1, probability of simulated errors
+}
+
+export interface MockResponse<T> {
+  data: T;
+  delay?: number;
+  error?: boolean;
+}
