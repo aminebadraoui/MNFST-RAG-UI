@@ -1,6 +1,6 @@
 # Database Schema & Types
 
-Complete guide to the RAG Chat database structure, TypeScript type definitions, and data relationships for the simplified multi-tenant system.
+Complete guide to the RAG Chat database structure, TypeScript type definitions, and data relationships for the simplified multi-tenant system using PostgreSQL.
 
 ## 🗄️ Database Overview
 
@@ -12,7 +12,7 @@ The simplified multi-tenant database uses PostgreSQL with Row Level Security (RL
 2. **Row Level Security**: PostgreSQL RLS policies enforce tenant data access
 3. **Three-Role System**: Simple user roles (superadmin, tenant_admin, user)
 4. **Simplified Schema**: Removed complex audit, rate limiting, and advanced security tables
-5. **Supabase Integration**: Optimized for Supabase PostgreSQL hosting
+5. **Backend Agnostic**: Compatible with any backend framework (FastAPI, Node.js, etc.)
 
 ## 📊 Database Schema
 
@@ -190,8 +190,8 @@ CREATE TABLE documents (
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     filename VARCHAR(255) NOT NULL,
     original_name VARCHAR(255) NOT NULL,
-    file_size BIGINT NOT NULL,
-    file_type VARCHAR(100) NOT NULL,
+    size BIGINT NOT NULL,                    -- Matches TypeScript 'size' field
+    mime_type VARCHAR(100) NOT NULL,           -- Matches TypeScript 'mimeType' field
     storage_path VARCHAR(500) NOT NULL,
     status VARCHAR(20) DEFAULT 'uploaded' CHECK (status IN ('uploaded', 'processing', 'processed', 'error')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -217,7 +217,7 @@ CREATE TABLE social_links (
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     url VARCHAR(500) NOT NULL,
     platform VARCHAR(50) NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    added_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()  -- Matches TypeScript 'addedAt' field
 );
 
 -- Indexes for performance
@@ -424,14 +424,13 @@ export interface TenantWithStats extends Tenant {
 
 ```typescript
 // Chat session interface
-export interface ChatSession {
+export interface Session {
   id: string;
   tenantId: string;
   userId: string;
   title: string;
   createdAt: string;
   updatedAt: string;
-  messageCount?: number;
 }
 
 // Message role enumeration
@@ -444,7 +443,7 @@ export interface Message {
   sessionId: string;
   content: string;
   role: MessageRole;
-  createdAt: string;
+  timestamp: string;       // Matches implementation (not createdAt)
 }
 
 // Create session request
@@ -489,13 +488,12 @@ export interface Document {
   tenantId: string;
   filename: string;
   originalName: string;
-  fileSize: number;
-  fileType: string;
-  storagePath: string;
+  size: number;           // Matches implementation (not fileSize)
+  mimeType: string;        // Matches implementation (not fileType)
   status: DocumentStatus;
-  createdAt: string;
-  updatedAt: string;
+  uploadedAt: string;       // Matches implementation (not createdAt)
   processedAt?: string;
+  error?: string;           // Matches implementation
 }
 
 // Upload progress
@@ -526,7 +524,7 @@ export interface SocialLink {
   tenantId: string;
   url: string;
   platform: SocialPlatform;
-  createdAt: string;
+  addedAt: string;
 }
 
 // Create social link request
@@ -720,6 +718,7 @@ LIMIT 50;
 
 ### Connection Pooling
 
+#### Node.js/PostgreSQL
 ```javascript
 // Database connection configuration
 const pool = new Pool({
@@ -734,67 +733,101 @@ const pool = new Pool({
 });
 ```
 
-## 📊 Supabase Integration
+#### Python/asyncpg (FastAPI)
+```python
+# Database connection configuration
+import asyncpg
 
-### Storage Configuration
+DATABASE_URL = "postgresql://user:password@host:port/database"
 
-```sql
--- Create storage buckets
-INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-VALUES (
-    'documents',
-    'documents',
-    false,
-    52428800, -- 50MB
-    ARRAY['application/pdf', 'text/plain', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
-);
-
-INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-VALUES (
-    'avatars',
-    'avatars',
-    true,
-    2097152, -- 2MB
-    ARRAY['image/jpeg', 'image/png', 'image/webp']
-);
+async def create_db_pool():
+    return await asyncpg.create_pool(
+        DATABASE_URL,
+        min_size=5,
+        max_size=20,
+        command_timeout=60
+    )
 ```
 
-### Storage Policies
+#### Python/SQLAlchemy (FastAPI/Django)
+```python
+# Database connection configuration
+from sqlalchemy import create_engine
+from sqlalchemy.pool import QueuePool
 
-```sql
--- Document storage policies
-CREATE POLICY "Users can upload documents for their tenant" ON storage.objects
-    FOR INSERT WITH CHECK (
-        bucket_id = 'documents' AND 
-        auth.role() = 'authenticated' AND
-        (storage.foldername(name))[1] = current_setting('app.current_tenant_id')::text
-    );
-
-CREATE POLICY "Users can view documents from their tenant" ON storage.objects
-    FOR SELECT USING (
-        bucket_id = 'documents' AND
-        auth.role() = 'authenticated' AND
-        (storage.foldername(name))[1] = current_setting('app.current_tenant_id')::text
-    );
+engine = create_engine(
+    DATABASE_URL,
+    poolclass=QueuePool,
+    pool_size=10,
+    max_overflow=20,
+    pool_pre_ping=True,
+    pool_recycle=3600
+)
 ```
 
-### Real-time Subscriptions
+## 📊 File Storage Integration
+
+### Local Storage Setup
+
+For local file storage, create directories and configure permissions:
+
+```bash
+# Create storage directories
+mkdir -p /var/www/storage/documents
+mkdir -p /var/www/storage/avatars
+chmod 755 /var/www/storage
+```
+
+### Cloud Storage Integration
+
+For cloud storage (AWS S3, Google Cloud Storage, etc.), configure your backend to:
+
+1. **Handle file uploads** with proper authentication
+2. **Store file metadata** in the documents table
+3. **Implement access controls** based on tenant isolation
+4. **Generate presigned URLs** for secure file access
+
+### Storage Metadata Table
 
 ```sql
--- Enable real-time for chat
-ALTER PUBLICATION supabase_realtime ADD TABLE chat_sessions;
-ALTER PUBLICATION supabase_realtime ADD TABLE messages;
+-- Optional: Enhanced storage metadata
+CREATE TABLE storage_metadata (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+    document_id UUID REFERENCES documents(id) ON DELETE CASCADE,
+    storage_path VARCHAR(500) NOT NULL,
+    storage_type VARCHAR(50) NOT NULL, -- 'local', 's3', 'gcs', etc.
+    file_size BIGINT NOT NULL,
+    mime_type VARCHAR(100),
+    checksum VARCHAR(64),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
--- Row level security for real-time
-CREATE POLICY "Users can subscribe to their tenant's sessions" ON chat_sessions
-    FOR SELECT USING (
-        tenant_id = current_setting('app.current_tenant_id')::uuid
-    );
+-- Enable RLS
+ALTER TABLE storage_metadata ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can subscribe to their tenant's messages" ON messages
-    FOR SELECT USING (
-        tenant_id = current_setting('app.current_tenant_id')::uuid
-    );
+-- RLS policy
+CREATE POLICY tenant_isolation_storage_metadata ON storage_metadata
+    FOR ALL TO authenticated
+    USING (tenant_id = current_setting('app.current_tenant_id')::uuid);
+```
+
+### Real-time Updates
+
+For real-time functionality, implement using:
+
+1. **WebSockets** in your backend
+2. **Server-Sent Events** for streaming updates
+3. **Polling** as a fallback option
+
+Example WebSocket implementation in your backend:
+```python
+# FastAPI WebSocket example
+@app.websocket("/ws/{tenant_id}")
+async def websocket_endpoint(websocket: WebSocket, tenant_id: str):
+    await websocket.accept()
+    # Verify tenant access
+    # Handle real-time updates
 ```
 
 ## 🔍 Data Validation

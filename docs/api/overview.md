@@ -7,7 +7,8 @@ Complete guide to the RAG Chat API with three-role authentication, endpoint docu
 ### Base URL
 
 ```
-Development: http://localhost:3001/api
+Development: http://localhost:8000/api  # FastAPI default
+Development: http://localhost:3001/api  # Node.js/Express default
 Production: https://yourdomain.com/api
 ```
 
@@ -504,14 +505,16 @@ Authorization: Bearer <tenant-admin-token>
 ```json
 {
   "success": true,
-  "data": [
-    {
-      "id": "social_1",
-      "url": "https://twitter.com/example",
-      "platform": "twitter",
-      "createdAt": "2024-01-01T09:00:00Z"
-    }
-  ]
+  "data": {
+    "links": [
+      {
+        "id": "social_1",
+        "url": "https://twitter.com/example",
+        "platform": "twitter",
+        "addedAt": "2024-01-01T09:00:00Z"
+      }
+    ]
+  }
 }
 ```
 
@@ -535,7 +538,7 @@ Content-Type: application/json
     "id": "social_3",
     "url": "https://github.com/example",
     "platform": "github",
-    "createdAt": "2024-01-01T11:00:00Z"
+    "addedAt": "2024-01-01T11:00:00Z"
   }
 }
 ```
@@ -794,6 +797,55 @@ The API uses a simple permission-based system:
 
 ### Authentication Middleware
 
+#### FastAPI (Python) Example
+
+```python
+from fastapi import HTTPException, Depends
+from fastapi.security import HTTPBearer
+import jwt
+
+security = HTTPBearer()
+
+async def get_current_user(token: str = Depends(security)):
+    try:
+        # 1. Extract and verify token
+        payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        # 2. Get user
+        user = await get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(
+                status_code=401,
+                detail={
+                    "success": False,
+                    "error": {
+                        "code": "USER_NOT_FOUND",
+                        "message": "User not found"
+                    }
+                }
+            )
+        
+        # 3. Set database context for RLS
+        if user.tenant_id:
+            await set_database_context('app.current_tenant_id', user.tenant_id)
+        
+        return user
+    except jwt.PyJWTError:
+        raise HTTPException(
+            status_code=401,
+            detail={
+                "success": False,
+                "error": {
+                    "code": "AUTHENTICATION_FAILED",
+                    "message": "Invalid authentication"
+                }
+            }
+        )
+```
+
+#### Node.js/Express Example
+
 ```typescript
 // Simple middleware for tenant context
 const tenantContext = async (req: Request, res: Response, next: NextFunction) => {
@@ -904,7 +956,51 @@ VITE_MOCK_CONSISTENT_DATA=true
 2. **CORS**: Configure appropriate CORS policies
 3. **Rate Limiting**: Basic rate limiting per endpoint
 4. **Input Validation**: Validate all input data
-5. **SQL Injection**: Use parameterized queries
+5. **SQL Injection**: Use parameterized queries or ORM
+
+### Framework-Specific Security
+
+#### FastAPI Security
+```python
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://yourdomain.com"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Rate limiting
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+
+@app.get("/api/v1/protected")
+@limiter.limit("100/minute")
+async def protected_endpoint():
+    pass
+```
+
+#### Node.js/Express Security
+```javascript
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
+// Security headers
+app.use(helmet());
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+app.use('/api/', limiter);
+```
 
 ---
 

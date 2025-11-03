@@ -21,7 +21,11 @@ mockSessions.forEach(session => {
 
 export const mockChatAPI = {
   getSessions: async (): Promise<GetSessionsResponse> => {
-    return mockApiClient.get({ sessions: mockSessions });
+    // Sort sessions by updatedAt in descending order (most recent first)
+    const sortedSessions = [...mockSessions].sort((a, b) =>
+      new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    );
+    return mockApiClient.get({ sessions: sortedSessions });
   },
 
   createSession: async (title: string): Promise<Session> => {
@@ -29,8 +33,7 @@ export const mockChatAPI = {
       id: MockDataGenerator.generateId(),
       title,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      messageCount: 0
+      updatedAt: new Date().toISOString()
     };
     
     mockSessions.unshift(newSession);
@@ -79,7 +82,6 @@ export const mockChatAPI = {
     const session = mockSessions.find(s => s.id === sessionId);
     if (session) {
       session.updatedAt = new Date().toISOString();
-      session.messageCount = mockMessages[sessionId].length;
     }
 
     return mockApiClient.post(userMessage, 1000);
@@ -143,7 +145,6 @@ export const mockChatAPI = {
       const session = mockSessions.find(s => s.id === sessionId);
       if (session) {
         session.updatedAt = new Date().toISOString();
-        session.messageCount = mockMessages[sessionId].length;
       }
     }, chunks.length * 150);
 

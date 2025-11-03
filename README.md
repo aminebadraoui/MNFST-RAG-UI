@@ -51,7 +51,7 @@ VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
 
 # API Configuration
-VITE_API_URL=http://localhost:3001
+VITE_API_URL=http://localhost:3001/api/v1
 VITE_APP_NAME=RAG Chat Dashboard
 ```
 
@@ -222,6 +222,12 @@ src/
 │   └── ui/            # Base UI components
 ├── context/           # React contexts
 ├── pages/             # Page components
+│   ├── ChatPage.tsx    # Default page after login
+│   ├── DocumentsPage.tsx
+│   ├── SocialPage.tsx
+│   ├── TenantsPage.tsx
+│   ├── UsersPage.tsx
+│   └── SettingsPage.tsx
 ├── services/          # API services
 │   └── mock/          # Mock API for development
 ├── types/             # TypeScript type definitions

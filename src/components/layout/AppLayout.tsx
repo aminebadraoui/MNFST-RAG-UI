@@ -19,14 +19,14 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const isChatPage = location.pathname === '/chat';
 
   return (
-    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 ${theme === 'dark' ? 'dark' : ''}`}>
+    <div className={`min-h-screen bg-light-bg-primary dark:bg-dark-bg-primary ${theme === 'dark' ? 'dark' : ''}`}>
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 md:hidden"
           onClick={() => setSidebarOpen(false)}
         >
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-75" aria-hidden="true"></div>
+          <div className="fixed inset-0 bg-dark-bg-quaternary bg-opacity-75" aria-hidden="true"></div>
         </div>
       )}
 

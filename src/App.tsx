@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { SettingsProvider } from './context/SettingsContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import RoleBasedRoute from './components/auth/RoleBasedRoute';
+import { ThemeToggle } from './components/ui';
 import LoginPage from './pages/LoginPage';
 import ChatPage from './pages/ChatPage';
 import DocumentsPage from './pages/DocumentsPage';
@@ -19,12 +20,17 @@ function App() {
     <div className="App">
       <AuthProvider>
         <SettingsProvider>
+          <ThemeToggle />
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/" element={
               <ProtectedRoute>
                 <AppLayout>
-                  <Navigate to="/chat" replace />
+                  <RoleBasedRoute
+                    roles={['superadmin']}
+                    element={<Navigate to="/tenants" replace />}
+                    fallback={<Navigate to="/chat" replace />}
+                  />
                 </AppLayout>
               </ProtectedRoute>
             } />

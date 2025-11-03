@@ -71,6 +71,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const setTheme = (theme: 'light' | 'dark') => {
     dispatch({ type: 'SET_THEME', payload: theme });
+    // Save to localStorage immediately when theme changes
+    localStorage.setItem('appSettings', JSON.stringify({ ...state, theme }));
   };
 
   const saveSettings = () => {

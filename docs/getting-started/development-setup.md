@@ -1,6 +1,6 @@
 # Development Guide
 
-Comprehensive guide for developing RAG Chat Admin Dashboard, including environment setup, project structure, component patterns, and best practices.
+Comprehensive guide for developing RAG Chat Admin Dashboard, including environment setup, project structure, component patterns, and best practices. This guide is frontend-focused and backend-agnostic, compatible with various backend technologies including FastAPI, Node.js, etc.
 
 ## 🚀 Quick Start
 
@@ -71,13 +71,9 @@ Create `.env` file with your configuration:
 
 ```env
 # Application Configuration
+VITE_API_BASE_URL=http://localhost:3001/api/v1
 VITE_APP_NAME=RAG Chat Dashboard
 VITE_APP_VERSION=1.0.0
-VITE_API_BASE_URL=http://localhost:3001/api
-
-# Development Settings
-VITE_DEV_MODE=true
-VITE_DEBUG_MODE=false
 
 # Mock API Configuration
 VITE_USE_MOCK_API=true
@@ -85,11 +81,37 @@ VITE_MOCK_DELAY_MIN=500
 VITE_MOCK_DELAY_MAX=2000
 VITE_MOCK_ERROR_RATE=0.1
 
+# Mock Account Credentials (for development)
+VITE_MOCK_SUPERADMIN_EMAIL=superadmin@ragchat.com
+VITE_MOCK_SUPERADMIN_PASSWORD=admin123
+VITE_MOCK_TENANT_ADMIN_EMAIL=admin@tenant.com
+VITE_MOCK_TENANT_ADMIN_PASSWORD=admin123
+VITE_MOCK_USER_EMAIL=user@tenant.com
+VITE_MOCK_USER_PASSWORD=user123
+
 # Feature Flags
 VITE_ENABLE_ANALYTICS=false
 VITE_ENABLE_ERROR_REPORTING=true
 VITE_ENABLE_PERFORMANCE_MONITORING=true
+VITE_ENABLE_DEBUG_LOGIN=true
 ```
+
+### Backend Configuration
+
+This frontend is designed to work with various backend technologies:
+
+#### FastAPI (Python) - Recommended
+```env
+VITE_API_BASE_URL=http://localhost:8000/api/v1
+```
+
+#### Node.js/Express
+```env
+VITE_API_BASE_URL=http://localhost:3001/api/v1
+```
+
+#### Other Backends
+Adjust the port and path according to your backend configuration.
 
 ### Environment-Specific Files
 
@@ -414,11 +436,12 @@ rag-chat-ui/
 │   │       └── index.ts
 │   ├── pages/                  # Page components
 │   │   ├── LoginPage.tsx
-│   │   ├── DashboardPage.tsx
 │   │   ├── ChatPage.tsx
 │   │   ├── DocumentsPage.tsx
 │   │   ├── SocialPage.tsx
 │   │   ├── SettingsPage.tsx
+│   │   ├── TenantsPage.tsx
+│   │   ├── UsersPage.tsx
 │   │   └── NotFoundPage.tsx
 │   ├── hooks/                  # Custom React hooks
 │   │   ├── useAuth.ts
@@ -1016,11 +1039,40 @@ services:
       - VITE_DEV_MODE=true
     command: npm run dev -- --host 0.0.0.0
 
-  # Add other services as needed
+  # Example with FastAPI backend
   # api:
-  #   image: your-api-image
+  #   build: ./backend
+  #   ports:
+  #     - "8000:8000"
+  #   environment:
+  #     - DATABASE_URL=postgresql://user:password@db:5432/ragchat
+  #   depends_on:
+  #     - db
+
+  # Example with Node.js backend
+  # api:
+  #   build: ./backend
   #   ports:
   #     - "3001:3001"
+  #   environment:
+  #     - DATABASE_URL=postgresql://user:password@db:5432/ragchat
+  #   depends_on:
+  #     - db
+
+  # PostgreSQL database
+  # db:
+  #   image: postgres:15
+  #   environment:
+  #     - POSTGRES_DB=ragchat
+  #     - POSTGRES_USER=user
+  #     - POSTGRES_PASSWORD=password
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+
+# volumes:
+#   postgres_data:
 ```
 
 ### Running with Docker
@@ -1131,21 +1183,22 @@ npm run build && npm run analyze
 
 ## 🎯 First Steps with the Application
 
-### Explore the Dashboard
+### Explore the Application
 
 Once the application is running, you'll see:
 
-- **Login Page**: Use `user@example.com` with password `password` (mock credentials)
-- **Dashboard**: Overview of all features
-- **Chat Interface**: Create and manage chat sessions
-- **Document Management**: Upload and manage documents
-- **Social Media**: Manage social media links
+- **Login Page**: Use demo credentials (see mock authentication documentation)
+- **Chat Interface** (Default): Create and manage chat sessions
+- **Document Management**: Upload and manage documents (Admin+)
+- **Social Media**: Manage social media links (Admin+)
+- **Tenants**: Manage tenants (Superadmin only)
+- **Users**: Manage users (Admin+)
 - **Settings**: Configure API endpoints and preferences
 
 ### Try the Features
 
-#### Chat Interface
-1. Click on "Chat" in the sidebar
+#### Chat Interface (Default Section)
+1. After login, you'll be redirected to Chat (default section)
 2. Create a new session
 3. Send a message and see the streaming response
 4. Try different conversation scenarios
@@ -1204,7 +1257,7 @@ Ensure your `.env` file is in the project root and follows this format:
 
 ```env
 # No quotes around values
-VITE_API_BASE_URL=http://localhost:3001/api
+VITE_API_BASE_URL=http://localhost:3001/api/v1
 VITE_USE_MOCK_API=true
 ```
 
@@ -1223,6 +1276,117 @@ Try these solutions:
 - [API Reference](./API.md) - Complete API documentation
 - [Database Schema](./DATABASE.md) - Database structure and types
 - [Deployment Guide](./DEPLOYMENT.md) - Deployment instructions
+
+## 🔗 Backend Integration
+
+### FastAPI Integration
+
+For FastAPI backend integration, ensure your API follows these conventions:
+
+1. **Base URL**: Configure `VITE_API_BASE_URL` to point to your FastAPI instance
+2. **Authentication**: Use JWT tokens with Bearer authentication
+3. **Response Format**: Follow the API response format documented in API.md
+4. **CORS**: Configure CORS to allow requests from your frontend domain
+
+### Other Backend Integration
+
+The frontend is designed to work with any backend that:
+
+1. Provides RESTful APIs following the documented endpoints
+2. Implements JWT-based authentication
+3. Returns responses in the expected JSON format
+4. Handles CORS appropriately
+
+## 🔧 API Service Architecture
+
+### Service Factory Pattern
+
+The application uses a sophisticated service factory pattern to switch between mock and real API implementations based on environment configuration:
+
+```typescript
+// API Service Factory
+export const createAPIs = (): APIs => {
+  if (mockConfig.enabled) {
+    return {
+      authAPI: mockAuthAPI,
+      chatAPI: mockChatAPI,
+      documentAPI: mockDocumentAPI,
+      socialAPI: mockSocialAPI,
+      tenantAPI: mockTenantAPI,
+      userAPI: mockUserAPI
+    };
+  } else {
+    return {
+      authAPI: realAuthAPI,
+      chatAPI: realChatAPI,
+      documentAPI: realDocumentAPI,
+      socialAPI: realSocialAPI,
+      tenantAPI: realTenantAPI,
+      userAPI: realUserAPI
+    };
+  }
+};
+```
+
+### Environment-Based API Switching
+
+The API services automatically switch based on the `VITE_USE_MOCK_API` environment variable:
+
+```env
+# Use Mock API (for development/testing)
+VITE_USE_MOCK_API=true
+
+# Use Real API (for production)
+VITE_USE_MOCK_API=false
+```
+
+### API Client Configuration
+
+The API client includes automatic token refresh and error handling:
+
+```typescript
+// Request interceptor adds auth token
+this.client.interceptors.request.use((config) => {
+  const token = localStorage.getItem('accessToken');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Response interceptor handles token refresh
+this.client.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      // Automatic token refresh logic
+      const refreshToken = localStorage.getItem('refreshToken');
+      const response = await axios.post('/auth/refresh', { refreshToken });
+      localStorage.setItem('accessToken', response.data.accessToken);
+      // Retry original request
+      return this.client(originalRequest);
+    }
+    return Promise.reject(error);
+  }
+);
+```
+
+### Mock API Configuration
+
+The mock API system provides realistic development experience:
+
+```typescript
+export const mockConfig: MockConfig = {
+  enabled: import.meta.env.VITE_USE_MOCK_API === 'true',
+  delay: {
+    min: parseInt(import.meta.env.VITE_MOCK_DELAY_MIN || '500'),
+    max: parseInt(import.meta.env.VITE_MOCK_DELAY_MAX || '2000')
+  },
+  errorRate: parseFloat(import.meta.env.VITE_MOCK_ERROR_RATE || '0.1')
+};
+```
+
+For detailed API specifications, refer to the [API Reference](./API.md).
 
 ---
 

@@ -16,9 +16,11 @@ export const documentAPI = {
   },
 
   uploadDocument: async (
-    formData: FormData,
+    file: File,
     onProgress?: UploadProgressCallback
   ): Promise<Document> => {
+    const formData = new FormData();
+    formData.append('file', file);
     const response = await apiClient.upload<Document>('/documents/upload', formData, {
       onUploadProgress: (progressEvent) => {
         if (onProgress && progressEvent.total) {

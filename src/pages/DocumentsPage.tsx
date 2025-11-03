@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   DocumentTextIcon,
   ArrowUpTrayIcon,
@@ -7,64 +7,37 @@ import {
   DocumentIcon,
   ChevronUpDownIcon
 } from '@heroicons/react/24/outline';
-
-interface Document {
-  id: string;
-  name: string;
-  type: 'pdf' | 'docx' | 'txt' | 'md';
-  size: number;
-  uploadedAt: Date;
-  pages?: number;
-}
+import { documentAPI } from '../services';
+import { Document } from '../types';
 
 type SortField = 'name' | 'uploadedAt' | 'type';
 type SortOrder = 'asc' | 'desc';
 
 const DocumentsPage: React.FC = () => {
-  const [documents] = useState<Document[]>([
-    {
-      id: '1',
-      name: 'Product_Manual_2024.pdf',
-      type: 'pdf',
-      size: 2457600,
-      uploadedAt: new Date('2024-01-15T10:30:00'),
-      pages: 45,
-    },
-    {
-      id: '2',
-      name: 'Technical_Specifications.docx',
-      type: 'docx',
-      size: 1024000,
-      uploadedAt: new Date('2024-01-14T14:20:00'),
-      pages: 23,
-    },
-    {
-      id: '3',
-      name: 'Meeting_Notes_January.txt',
-      type: 'txt',
-      size: 25600,
-      uploadedAt: new Date('2024-01-13T09:15:00'),
-      pages: 3,
-    },
-    {
-      id: '4',
-      name: 'API_Documentation.md',
-      type: 'md',
-      size: 512000,
-      uploadedAt: new Date('2024-01-12T16:45:00'),
-    },
-    {
-      id: '5',
-      name: 'User_Research_Findings.pdf',
-      type: 'pdf',
-      size: 3072000,
-      uploadedAt: new Date('2024-01-11T11:30:00'),
-    },
-  ]);
-
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [sortField, setSortField] = useState<SortField>('uploadedAt');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+
+  // Fetch documents on component mount
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const response = await documentAPI.getDocuments();
+        setDocuments(response.documents);
+      } catch (err: any) {
+        setError(err.message || 'Failed to load documents');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDocuments();
+  }, []);
 
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
@@ -74,18 +47,17 @@ const DocumentsPage: React.FC = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const getFileIcon = (type: string) => {
-    switch (type) {
-      case 'pdf':
-        return <DocumentTextIcon className="h-8 w-8 text-red-500" />;
-      case 'docx':
-        return <DocumentIcon className="h-8 w-8 text-blue-500" />;
-      case 'txt':
-        return <DocumentIcon className="h-8 w-8 text-gray-500" />;
-      case 'md':
-        return <DocumentIcon className="h-8 w-8 text-purple-500" />;
-      default:
-        return <DocumentIcon className="h-8 w-8 text-gray-400" />;
+  const getFileIcon = (mimeType: string) => {
+    if (mimeType.includes('pdf')) {
+      return <DocumentTextIcon className="h-8 w-8 text-red-500 dark:text-red-400" />;
+    } else if (mimeType.includes('word') || mimeType.includes('document')) {
+      return <DocumentIcon className="h-8 w-8 text-blue-500 dark:text-blue-400" />;
+    } else if (mimeType.includes('text')) {
+      return <DocumentIcon className="h-8 w-8 text-light-text-tertiary dark:text-dark-text-tertiary" />;
+    } else if (mimeType.includes('markdown')) {
+      return <DocumentIcon className="h-8 w-8 text-purple-500 dark:text-purple-400" />;
+    } else {
+      return <DocumentIcon className="h-8 w-8 text-light-text-quaternary dark:text-dark-text-quaternary" />;
     }
   };
 
@@ -105,20 +77,20 @@ const DocumentsPage: React.FC = () => {
 
       switch (sortField) {
         case 'name':
-          aValue = a.name.toLowerCase();
-          bValue = b.name.toLowerCase();
+          aValue = a.originalName.toLowerCase();
+          bValue = b.originalName.toLowerCase();
           break;
         case 'uploadedAt':
           aValue = a.uploadedAt;
           bValue = b.uploadedAt;
           break;
         case 'type':
-          aValue = a.type;
-          bValue = b.type;
+          aValue = a.mimeType;
+          bValue = b.mimeType;
           break;
         default:
-          aValue = a.name.toLowerCase();
-          bValue = b.name.toLowerCase();
+          aValue = a.originalName.toLowerCase();
+          bValue = b.originalName.toLowerCase();
       }
 
       if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
@@ -139,18 +111,43 @@ const DocumentsPage: React.FC = () => {
     setIsDragOver(false);
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
-    // In a real app, this would handle file upload
-    console.log('Files dropped:', e.dataTransfer.files);
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length === 0) return;
+    
+    try {
+      // Upload each file
+      for (const file of files) {
+        await documentAPI.uploadDocument(file);
+      }
+      
+      // Refresh documents list
+      const response = await documentAPI.getDocuments();
+      setDocuments(response.documents);
+    } catch (err: any) {
+      setError(err.message || 'Failed to upload documents');
+    }
+  };
+
+  const handleDeleteDocument = async (documentId: string) => {
+    try {
+      await documentAPI.deleteDocument(documentId);
+      // Refresh documents list
+      const response = await documentAPI.getDocuments();
+      setDocuments(response.documents);
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete document');
+    }
   };
 
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Document Management</h1>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        <h1 className="text-2xl font-semibold text-light-text-primary dark:text-dark-text-primary">Document Management</h1>
+        <p className="mt-1 text-sm text-light-text-secondary dark:text-dark-text-secondary">
           Upload and manage documents for your RAG system.
         </p>
       </div>
@@ -161,109 +158,142 @@ const DocumentsPage: React.FC = () => {
           className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
             isDragOver
               ? 'border-primary-500 bg-primary-50 dark:bg-primary-900'
-              : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+              : 'border-light-border-primary dark:border-dark-border-primary hover:border-light-border-secondary dark:hover:border-dark-border-secondary'
           }`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
-          <ArrowUpTrayIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <ArrowUpTrayIcon className="mx-auto h-12 w-12 text-light-text-quaternary dark:text-dark-text-quaternary" />
+          <p className="mt-2 text-sm text-light-text-secondary dark:text-dark-text-secondary">
             Drag and drop your documents here, or{' '}
             <button className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300">
               click to browse
             </button>
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-xs text-light-text-tertiary dark:text-dark-text-tertiary mt-1">
             Supports PDF, DOCX, TXT, and Markdown files up to 10MB
           </p>
         </div>
       </div>
 
+      {/* Loading State */}
+      {isLoading && (
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <p className="mt-2 text-light-text-secondary dark:text-dark-text-secondary">Loading documents...</p>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-md mb-6">
+          {error}
+        </div>
+      )}
+
       {/* Documents List */}
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Uploaded Documents</h3>
-            <span className="text-sm text-gray-500 dark:text-gray-400">Total: {documents.length}</span>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                  <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
-                    onClick={() => handleSort('name')}
-                  >
-                    <div className="flex items-center">
-                      Name
-                      <ChevronUpDownIcon className="ml-1 h-4 w-4" />
-                    </div>
-                  </th>
-                  <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
-                    onClick={() => handleSort('type')}
-                  >
-                    <div className="flex items-center">
-                      Kind
-                      <ChevronUpDownIcon className="ml-1 h-4 w-4" />
-                    </div>
-                  </th>
-                  <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
-                    onClick={() => handleSort('uploadedAt')}
-                  >
-                    <div className="flex items-center">
-                      Uploaded
-                      <ChevronUpDownIcon className="ml-1 h-4 w-4" />
-                    </div>
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {sortedDocuments.map((doc) => (
-                  <tr key={doc.id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
+      {!isLoading && !error && (
+        <div className="bg-light-bg-secondary dark:bg-dark-bg-secondary shadow rounded-lg border border-light-border-primary dark:border-dark-border-primary">
+          <div className="px-4 py-5 sm:p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium text-light-text-primary dark:text-dark-text-primary">Uploaded Documents</h3>
+              <span className="text-sm text-light-text-tertiary dark:text-dark-text-tertiary">Total: {documents.length}</span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-light-border-primary dark:divide-dark-border-primary">
+                <thead className="bg-light-bg-tertiary dark:bg-dark-bg-tertiary">
+                  <tr>
+                    <th
+                      className="px-6 py-3 text-left text-xs font-medium text-light-text-quaternary dark:text-dark-text-quaternary uppercase tracking-wider cursor-pointer hover:bg-light-bg-quaternary dark:hover:bg-dark-bg-quaternary"
+                      onClick={() => handleSort('name')}
+                    >
                       <div className="flex items-center">
-                        <div className="flex-shrink-0">
-                          {getFileIcon(doc.type)}
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900 dark:text-white">{doc.name}</div>
-                          {doc.pages && (
-                            <div className="text-sm text-gray-500 dark:text-gray-400">{doc.pages} pages</div>
-                          )}
-                        </div>
+                        Name
+                        <ChevronUpDownIcon className="ml-1 h-4 w-4" />
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
-                        {doc.type.toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {doc.uploadedAt.toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
-                        <button className="text-primary-600 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300">
-                          <EyeIcon className="h-5 w-5" />
-                        </button>
-                        <button className="text-red-600 hover:text-red-900 dark:hover:text-red-400">
-                          <TrashIcon className="h-5 w-5" />
-                        </button>
+                    </th>
+                    <th
+                      className="px-6 py-3 text-left text-xs font-medium text-light-text-quaternary dark:text-dark-text-quaternary uppercase tracking-wider cursor-pointer hover:bg-light-bg-quaternary dark:hover:bg-dark-bg-quaternary"
+                      onClick={() => handleSort('type')}
+                    >
+                      <div className="flex items-center">
+                        Kind
+                        <ChevronUpDownIcon className="ml-1 h-4 w-4" />
                       </div>
-                    </td>
+                    </th>
+                    <th
+                      className="px-6 py-3 text-left text-xs font-medium text-light-text-quaternary dark:text-dark-text-quaternary uppercase tracking-wider cursor-pointer hover:bg-light-bg-quaternary dark:hover:bg-dark-bg-quaternary"
+                      onClick={() => handleSort('uploadedAt')}
+                    >
+                      <div className="flex items-center">
+                        Uploaded
+                        <ChevronUpDownIcon className="ml-1 h-4 w-4" />
+                      </div>
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-light-text-quaternary dark:text-dark-text-quaternary uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="bg-light-bg-secondary dark:bg-dark-bg-secondary divide-y divide-light-border-primary dark:divide-dark-border-primary">
+                  {sortedDocuments.map((doc) => (
+                    <tr key={doc.id}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0">
+                            {getFileIcon(doc.mimeType)}
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-light-text-primary dark:text-dark-text-primary">{doc.originalName}</div>
+                            <div className="text-sm text-light-text-tertiary dark:text-dark-text-tertiary">
+                              Status: <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                doc.status === 'processed' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' :
+                                doc.status === 'processing' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200' :
+                                doc.status === 'error' ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200' :
+                                'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+                              }`}>
+                                {doc.status}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-light-text-tertiary dark:text-dark-text-tertiary">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-light-bg-tertiary dark:bg-dark-bg-tertiary text-light-text-secondary dark:text-dark-text-secondary">
+                          {doc.mimeType.split('/')[1]?.toUpperCase() || 'UNKNOWN'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-light-text-tertiary dark:text-dark-text-tertiary">
+                        {new Date(doc.uploadedAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex space-x-2">
+                          <button className="text-primary-600 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300">
+                            <EyeIcon className="h-5 w-5" />
+                          </button>
+                          <button
+                            className="text-red-600 hover:text-red-900 dark:hover:text-red-400"
+                            onClick={() => handleDeleteDocument(doc.id)}
+                          >
+                            <TrashIcon className="h-5 w-5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            
+            {!isLoading && !error && documents.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-light-text-tertiary dark:text-dark-text-tertiary">No documents found.</p>
+              </div>
+            )}
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

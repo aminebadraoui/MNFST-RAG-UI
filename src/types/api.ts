@@ -1,13 +1,29 @@
 export interface ApiResponse<T = any> {
+  success: boolean;
   data?: T;
-  error?: string;
+  error?: {
+    code: string;
+    message: string;
+    details?: string;
+  };
   message?: string;
+  meta?: {
+    timestamp: string;
+    requestId: string;
+  };
 }
 
 export interface ApiError {
-  error: string;
-  message: string;
-  details?: string;
+  success: false;
+  error: {
+    code: string;
+    message: string;
+    details?: string;
+  };
+  meta: {
+    timestamp: string;
+    requestId: string;
+  };
 }
 
 export interface PaginationParams {

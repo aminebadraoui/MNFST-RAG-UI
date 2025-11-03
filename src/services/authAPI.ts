@@ -1,5 +1,5 @@
 import { apiClient } from './apiClient';
-import { LoginRequest, LoginResponse, RefreshTokenRequest, RefreshTokenResponse } from '../types';
+import { LoginRequest, LoginResponse, RefreshTokenRequest, RefreshTokenResponse, User } from '../types';
 
 export const authAPI = {
   login: async (email: string, password: string): Promise<LoginResponse> => {
@@ -19,5 +19,10 @@ export const authAPI = {
 
   logout: async (): Promise<void> => {
     await apiClient.post('/auth/logout');
+  },
+
+  getCurrentUser: async (): Promise<{ data: User }> => {
+    const response = await apiClient.get<{ data: User }>('/auth/me');
+    return response.data;
   },
 };

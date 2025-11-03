@@ -22,13 +22,17 @@ export class MockDataGenerator {
   }
 
   static generateSessions(count: number = 5): Session[] {
-    return Array.from({ length: count }, (_, i) => ({
+    const sessions = Array.from({ length: count }, (_, i) => ({
       id: this.generateId(),
       title: `Chat Session ${i + 1}`,
       createdAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
-      updatedAt: new Date(Date.now() - i * 12 * 60 * 60 * 1000).toISOString(),
-      messageCount: Math.floor(Math.random() * 20) + 1
+      updatedAt: new Date(Date.now() - i * 12 * 60 * 60 * 1000).toISOString()
     }));
+    
+    // Sort sessions by updatedAt in descending order (most recent first)
+    return sessions.sort((a, b) =>
+      new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    );
   }
 
   static generateMessages(sessionId: string, count: number = 10): Message[] {

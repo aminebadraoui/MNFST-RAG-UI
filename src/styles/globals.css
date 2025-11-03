@@ -8,7 +8,11 @@
   }
   
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-light-bg-primary text-light-text-primary antialiased;
+  }
+  
+  .dark body {
+    @apply bg-dark-bg-primary text-dark-text-primary antialiased;
   }
 }
 
@@ -22,7 +26,7 @@
   }
   
   .btn-secondary {
-    @apply bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500;
+    @apply bg-light-bg-tertiary text-light-text-primary hover:bg-light-bg-quaternary focus:ring-primary-500 dark:bg-dark-bg-tertiary dark:text-dark-text-primary dark:hover:bg-dark-bg-quaternary;
   }
   
   .btn-danger {
@@ -30,15 +34,15 @@
   }
   
   .input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+    @apply w-full px-3 py-2 border border-light-border-primary rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:border-dark-border-primary dark:bg-dark-bg-secondary dark:text-dark-text-primary;
   }
   
   .card {
-    @apply bg-white overflow-hidden shadow rounded-lg;
+    @apply bg-light-bg-primary overflow-hidden shadow rounded-lg dark:bg-dark-bg-secondary dark:border dark:border-dark-border-primary;
   }
   
   .card-header {
-    @apply px-4 py-5 sm:px-6 border-b border-gray-200;
+    @apply px-4 py-5 sm:px-6 border-b border-light-border-primary dark:border-dark-border-primary;
   }
   
   .card-body {
@@ -49,5 +53,41 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+@layer components {
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.4s ease-out;
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

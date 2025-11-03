@@ -1,51 +1,57 @@
 # Deployment Guide
 
-Complete guide to deploying the RAG Chat Admin Dashboard to production, with focus on Hostinger hosting and Supabase integration.
+Complete guide to deploying the RAG Chat Admin Dashboard to production, compatible with various hosting providers and PostgreSQL databases.
 
 ## 🎯 Deployment Overview
 
-The simplified multi-tenant RAG Chat system is designed for easy deployment on shared hosting platforms like Hostinger with Supabase as the backend service.
+The simplified multi-tenant RAG Chat system is designed for flexible deployment on various hosting platforms with PostgreSQL as the database backend.
 
 ### Deployment Architecture
 
 ```mermaid
 graph TB
-    subgraph "Hostinger Hosting"
+    subgraph "Hosting Provider"
         A[Static Files (React Build)]
         B[Environment Variables]
         C[Domain Configuration]
         D[SSL Certificate]
     end
     
-    subgraph "Supabase (External)"
-        E[PostgreSQL Database]
+    subgraph "Backend Service"
+        E[API Server (FastAPI/Node.js/etc.)]
         F[Authentication Service]
-        G[File Storage]
-        H[Row Level Security]
+        G[File Storage Service]
+    end
+    
+    subgraph "Database"
+        H[PostgreSQL Database]
+        I[Row Level Security]
     end
     
     A --> E
     B --> F
     C --> G
-    D --> H
+    E --> H
+    F --> I
 ```
 
 ### Infrastructure Requirements
 
-- **Node.js Application Server**
-- **Supabase Database Connection**
-- **File Storage via Supabase Storage**
-- **Basic SSL Certificate**
-- **Simple Reverse Proxy (optional)**
+- **Web Server** (Nginx, Apache, or hosting provider's server)
+- **Backend API Server** (FastAPI, Node.js, etc.)
+- **PostgreSQL Database** (with pgvector extension)
+- **File Storage** (local or cloud-based)
+- **SSL Certificate**
+- **Reverse Proxy** (optional but recommended)
 
 ## 🚀 Quick Deployment
 
 ### Prerequisites
 
-1. **Hostinger Account** with hosting plan supporting Node.js
-2. **Supabase Project** with PostgreSQL database
+1. **Hosting Account** with a provider of your choice
+2. **PostgreSQL Database** (with pgvector extension)
 3. **Custom Domain** (optional but recommended)
-4. **SSL Certificate** (usually provided by Hostinger)
+4. **SSL Certificate** (usually provided by hosting provider)
 
 ### Step-by-Step Deployment
 
@@ -68,10 +74,7 @@ Create production environment file:
 
 ```env
 # Database Configuration
-DATABASE_URL=postgresql://[supabase-connection]
-SUPABASE_URL=https://[project].supabase.co
-SUPABASE_ANON_KEY=[anon-key]
-SUPABASE_SERVICE_ROLE_KEY=[service-key]
+DATABASE_URL=postgresql://[your-postgres-connection]
 
 # Authentication
 JWT_ACCESS_SECRET=[jwt-access-secret]
@@ -83,7 +86,7 @@ PORT=3000
 BASE_URL=https://yourdomain.com
 
 # File Storage
-STORAGE_URL=https://[project].supabase.co/storage/v1
+STORAGE_URL=[your-storage-service-url]
 STORAGE_BUCKET=rag-chat-files
 
 # Feature Flags
@@ -92,15 +95,14 @@ VITE_ENABLE_ERROR_REPORTING=true
 VITE_USE_MOCK_API=false
 ```
 
-#### 3. Deploy to Hostinger
+#### 3. Deploy to Your Hosting Provider
 
-**Method 1: Hostinger Control Panel**
-1. Log in to Hostinger control panel
-2. Navigate to "Hosting" → "Advanced" → "Website Manager"
-3. Upload build files to public_html directory
-4. Set up Node.js application
-5. Configure environment variables
-6. Set up custom domain and SSL
+**Method 1: Control Panel Upload**
+1. Log in to your hosting control panel
+2. Navigate to file manager or website manager
+3. Upload build files to the appropriate directory
+4. Configure environment variables
+5. Set up custom domain and SSL
 
 **Method 2: FTP/SFTP Upload**
 ```bash
@@ -112,11 +114,11 @@ exit
 
 **Method 3: Git Deployment (if supported)**
 ```bash
-# Add Hostinger remote
-git remote add hostinger git@hostinger.com:username/repository.git
+# Add hosting provider remote
+git remote add production git@your-provider.com:username/repository.git
 
 # Push to production
-git push hostinger main
+git push production main
 ```
 
 #### 4. Configure Domain and SSL
@@ -139,22 +141,29 @@ curl -I https://yourdomain.com
 curl https://yourdomain.com/api/v1/auth/me
 ```
 
-## 🗄️ Supabase Setup
+## 🗄️ Database Setup
 
-### Create Supabase Project
+### PostgreSQL Database Setup
 
-1. **Sign up** at [supabase.com](https://supabase.com)
-2. **Create new project** with desired region
-3. **Note project details**:
-   - Project URL
-   - Anon key
-   - Service role key
+1. **Create PostgreSQL Database** with your hosting provider or self-hosted
+2. **Enable pgvector extension** for vector operations
+3. **Note connection details**:
+   - Host
+   - Port
+   - Database name
+   - Username
+   - Password
 
 ### Database Schema Setup
 
 #### Run Database Migrations
 
 ```sql
+-- Create extensions
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE EXTENSION IF NOT EXISTS "vector";
+
 -- Create tenants table
 CREATE TABLE tenants (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -195,76 +204,39 @@ ALTER TABLE social_links ENABLE ROW LEVEL SECURITY;
 CREATE POLICY tenant_isolation_users ON users
     FOR ALL TO authenticated
     USING (
-        tenant_id = current_setting('app.current_tenant_id')::uuid 
+        tenant_id = current_setting('app.current_tenant_id')::uuid
         OR current_setting('app.user_role') = 'superadmin'
     );
 ```
 
-### Storage Configuration
+### File Storage Configuration
 
-#### Create Storage Buckets
-
-```sql
--- Create storage bucket for documents
-INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-VALUES (
-    'documents',
-    'documents',
-    false,
-    52428800, -- 50MB
-    ARRAY['application/pdf', 'text/plain', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
-);
-
--- Create storage bucket for avatars
-INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-VALUES (
-    'avatars',
-    'avatars',
-    true,
-    2097152, -- 2MB
-    ARRAY['image/jpeg', 'image/png', 'image/webp']
-);
+#### Option 1: Local Storage
+```bash
+# Create storage directories
+mkdir -p /var/www/storage/documents
+mkdir -p /var/www/storage/avatars
+chmod 755 /var/www/storage
 ```
 
-#### Storage Policies
-
-```sql
--- Policies for document storage
-CREATE POLICY "Users can upload documents for their tenant" ON storage.objects
-    FOR INSERT WITH CHECK (
-        bucket_id = 'documents' AND 
-        auth.role() = 'authenticated' AND
-        (storage.foldername(name))[1] = current_setting('app.current_tenant_id')::text
-    );
-
-CREATE POLICY "Users can view documents from their tenant" ON storage.objects
-    FOR SELECT USING (
-        bucket_id = 'documents' AND
-        auth.role() = 'authenticated' AND
-        (storage.foldername(name))[1] = current_setting('app.current_tenant_id')::text
-    );
-```
+#### Option 2: Cloud Storage (AWS S3, Google Cloud Storage, etc.)
+1. Create storage buckets
+2. Configure access keys
+3. Set up CORS policies
+4. Update environment variables with storage configuration
 
 ### Authentication Configuration
 
-#### Set Up Auth Providers
+#### JWT Settings
 
-1. **Email/Password** (enabled by default)
-2. **Social Providers** (optional):
-   - Google
-   - GitHub
-   - Microsoft
+Configure JWT settings in your backend application:
 
-#### Configure JWT Settings
-
-```javascript
-// In Supabase Dashboard → Settings → Auth
-{
-  "jwt_secret": "your-jwt-secret",
-  "jwt_expiry": "3600s",
-  "refresh_token_rotation_enabled": true,
-  "security_update_password_require_reauthentication": true
-}
+```python
+# FastAPI example
+SECRET_KEY = "your-jwt-secret"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 15
+REFRESH_TOKEN_EXPIRE_DAYS = 7
 ```
 
 ## 🔧 Production Configuration
@@ -275,10 +247,7 @@ Create `.env.production` file:
 
 ```env
 # Database
-DATABASE_URL=postgresql://postgres:[password]@db.[project].supabase.co:5432/postgres
-SUPABASE_URL=https://[project].supabase.co
-SUPABASE_ANON_KEY=[anon-key]
-SUPABASE_SERVICE_ROLE_KEY=[service-key]
+DATABASE_URL=postgresql://[username]:[password]@[host]:[port]/[database]
 
 # Authentication
 JWT_ACCESS_SECRET=[strong-random-string]
@@ -290,7 +259,7 @@ PORT=3000
 BASE_URL=https://yourdomain.com
 
 # Storage
-STORAGE_URL=https://[project].supabase.co/storage/v1
+STORAGE_URL=[your-storage-service-url]
 STORAGE_BUCKET=rag-chat-files
 
 # Security
@@ -305,7 +274,37 @@ LOG_LEVEL=info
 
 ### Server Configuration
 
-#### Node.js Server Setup
+#### FastAPI Server Setup (Recommended)
+
+```python
+# main.py
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import uvicorn
+
+app = FastAPI()
+
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[process.env.CORS_ORIGIN],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Serve static files
+app.mount("/static", StaticFiles(directory="dist"), name="static")
+
+# API routes
+app.include_router(api_router, prefix="/api")
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+
+#### Node.js/Express Server Setup
 
 ```javascript
 // server.js
@@ -354,7 +353,7 @@ app.listen(PORT, () => {
 module.exports = {
   apps: [{
     name: 'rag-chat-app',
-    script: 'server.js',
+    script: 'main.py', // or server.js for Node.js
     instances: 'max',
     exec_mode: 'cluster',
     env: {
@@ -795,18 +794,24 @@ const cacheMiddleware = (duration) => {
 
 ## 🔗 Additional Resources
 
-### Hostinger Resources
+### Hosting Provider Resources
 
-- [Hostinger Documentation](https://support.hostinger.com/)
-- [Node.js Hosting Guide](https://support.hostinger.com/en/articles/4978795-how-to-install-and-run-node-js-app-on-hostinger)
-- [SSL Configuration](https://support.hostinger.com/en/articles/4978795-how-to-install-ssl-certificate)
+#### General Hosting
+- [DigitalOcean Documentation](https://docs.digitalocean.com/)
+- [AWS Documentation](https://docs.aws.amazon.com/)
+- [Google Cloud Documentation](https://cloud.google.com/docs)
+- [Vultr Documentation](https://www.vultr.com/docs/)
 
-### Supabase Resources
+#### Backend Frameworks
+- [FastAPI Documentation](https://fastapi.tiangolo.com/)
+- [Express.js Documentation](https://expressjs.com/)
+- [Django Documentation](https://docs.djangoproject.com/)
 
-- [Supabase Documentation](https://supabase.com/docs)
-- [Database Guide](https://supabase.com/docs/guides/database)
-- [Storage Guide](https://supabase.com/docs/guides/storage)
-- [Auth Guide](https://supabase.com/docs/guides/auth)
+### Database Resources
+
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+- [pgvector Extension](https://github.com/pgvector/pgvector)
+- [Database Connection Pooling](https://www.postgresql.org/docs/current/pgpool.html)
 
 ### Monitoring Resources
 

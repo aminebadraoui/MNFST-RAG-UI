@@ -1,6 +1,6 @@
 # Architecture Guide
 
-Comprehensive overview of the RAG Chat Admin Dashboard system architecture, including multi-tenant design, components, data flow, and security.
+Comprehensive overview of the RAG Chat Admin Dashboard system architecture, including multi-tenant design, components, data flow, and security. This architecture is backend-agnostic and compatible with various technologies including FastAPI, Node.js, etc.
 
 ## 🏗️ High-Level Architecture
 
@@ -16,7 +16,7 @@ graph TB
         B --> F[Chat Interface]
     end
     
-    subgraph "Backend (Node.js + Express)"
+    subgraph "Backend (FastAPI/Node.js/etc.)"
         G[Authentication Service] --> H[Role-Based API]
         H --> I[Tenant Service]
         H --> J[Document Service]
@@ -24,7 +24,7 @@ graph TB
         H --> L[Social Media Service]
     end
     
-    subgraph "Database (Supabase + PostgreSQL)"
+    subgraph "Database (PostgreSQL)"
         M[Tenants Table]
         N[Users Table]
         O[Documents Table]
@@ -256,20 +256,21 @@ interface RefreshTokenPayload {
 graph TD
     A[Login] --> B{User Role}
     
-    B -->|superadmin| C[/admin - Tenant Management]
-    B -->|tenant_admin| D[/dashboard - Tenant Dashboard]
+    B -->|superadmin| C[/tenants - Tenant Management]
+    B -->|tenant_admin| D[/chat - Tenant Dashboard]
     B -->|user| E[/chat - Chat Interface]
     
     C --> F[Tenant CRUD]
-    C --> G[System Settings]
+    C --> G[User Management]
+    C --> H[System Settings]
     
-    D --> H[Document Management]
-    D --> I[Social Media Management]
-    D --> J[User Management]
-    D --> K[Chat Testing]
+    D --> I[Document Management]
+    D --> J[Social Media Management]
+    D --> K[User Management]
+    D --> L[Chat Interface]
     
-    E --> L[Chat Sessions]
-    E --> M[Message History]
+    E --> M[Chat Sessions]
+    E --> N[Message History]
 ```
 
 ## 🎨 Frontend Architecture
@@ -281,20 +282,26 @@ graph TD
     App[App.tsx]
     
     App --> AuthProvider[AuthProvider]
-    AuthProvider --> Router[BrowserRouter]
+    AuthProvider --> SettingsProvider[SettingsProvider]
+    SettingsProvider --> Router[BrowserRouter]
     
-    Router --> ProtectedRoute[ProtectedRoute]
+    Router --> Routes[Routes]
+    Routes --> ProtectedRoute[ProtectedRoute]
     ProtectedRoute --> Layout[AppLayout]
     
     Layout --> Header[Header]
     Layout --> Sidebar[Sidebar]
     Layout --> MainContent[MainContent]
+    Layout --> ThemeToggle[ThemeToggle]
     
     MainContent --> Pages[Page Components]
     Pages --> ChatPage[ChatPage]
     Pages --> DocsPage[DocumentsPage]
     Pages --> SocialPage[SocialPage]
     Pages --> SettingsPage[SettingsPage]
+    Pages --> TenantsPage[TenantsPage]
+    Pages --> UsersPage[UsersPage]
+    Pages --> NotFoundPage[NotFoundPage]
     
     style App fill:#e1f5fe
     style Layout fill:#f3e5f5
@@ -349,6 +356,8 @@ graph TB
         ChatAPI[Chat API Service]
         DocAPI[Document API Service]
         SocialAPI[Social API Service]
+        TenantAPI[Tenant API Service]
+        UserAPI[User API Service]
     end
     
     subgraph "Client Layer"
@@ -367,11 +376,15 @@ graph TB
     Factory --> ChatAPI
     Factory --> DocAPI
     Factory --> SocialAPI
+    Factory --> TenantAPI
+    Factory --> UserAPI
     
     AuthAPI --> APIClient
     ChatAPI --> APIClient
     DocAPI --> APIClient
     SocialAPI --> APIClient
+    TenantAPI --> APIClient
+    UserAPI --> APIClient
     
     APIClient --> MockClient
     APIClient --> Interceptors
@@ -533,32 +546,40 @@ const requirePermission = (permission: string) => {
 
 ## 🚀 Deployment Architecture
 
-### Self-Hosted on Hostinger
+### Flexible Deployment Options
 
 ```
-Hostinger Hosting
+Hosting Provider (Your Choice)
 ├── Static Files (React Build)
+├── Backend API (FastAPI/Node.js/etc.)
 ├── Environment Variables
 ├── Domain Configuration
 └── SSL Certificate
 
-Supabase (External)
-├── PostgreSQL Database
-├── Authentication Service
-├── File Storage
-└── Row Level Security
+PostgreSQL Database
+├── Database Tables
+├── Row Level Security
+└── Connection Pooling
+
+File Storage
+├── Local Storage or
+├── Cloud Storage (AWS S3, GCS, etc.)
+└── Access Controls
 ```
 
 ### Environment Configuration
 
 ```env
-# Supabase Configuration
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
+# Database Configuration
+DATABASE_URL=postgresql://[your-postgres-connection]
 
 # Application Configuration
-VITE_API_URL=https://your-domain.com
+VITE_API_URL=https://your-domain.com/api/v1
 VITE_APP_NAME=RAG Chat Dashboard
+
+# Storage Configuration
+STORAGE_URL=[your-storage-service-url]
+STORAGE_TYPE=[local|s3|gcs|etc.]
 ```
 
 ## 📊 Technology Stack
@@ -567,42 +588,47 @@ VITE_APP_NAME=RAG Chat Dashboard
 
 | Layer | Technology | Purpose |
 |-------|-------------|---------|
-| **UI Framework** | React 18 | Component-based UI development |
-| **Language** | TypeScript | Type safety and better development experience |
-| **Styling** | Tailwind CSS | Utility-first CSS framework |
+| **UI Framework** | React 18.2.0 | Component-based UI development |
+| **Language** | TypeScript 4.9.3 | Type safety and better development experience |
+| **Styling** | Tailwind CSS 3.2.7 | Utility-first CSS framework |
 | **State Management** | React Context + useReducer | Global state management |
-| **Routing** | React Router | Client-side routing |
-| **HTTP Client** | Axios | HTTP requests with interceptors |
-| **Build Tool** | Vite | Fast development and building |
+| **Routing** | React Router DOM 6.8.1 | Client-side routing |
+| **HTTP Client** | Axios 1.3.4 | HTTP requests with interceptors |
+| **Build Tool** | Vite 4.1.0 | Fast development and building |
+| **UI Components** | Headless UI 1.7.13 | Accessible component primitives |
+| **Icons** | Heroicons 2.0.16 | Consistent icon set |
+| **Forms** | @tailwindcss/forms 0.5.3 | Form styling utilities |
+| **Typography** | @tailwindcss/typography 0.5.9 | Typography utilities |
+| **Validation** | Zod 4.1.12 | Schema validation |
 
-### Backend Technologies
+### Backend Technologies (Compatible Options)
 
-| Layer | Technology | Purpose |
-|-------|-------------|---------|
-| **API Framework** | Express.js | REST API development |
-| **Authentication** | JWT + Passport | Authentication and authorization |
-| **Database** | Supabase (PostgreSQL) | Relational data storage with RLS |
-| **File Storage** | Supabase Storage | File storage and management |
+| Layer | Technology Options | Purpose |
+|-------|-------------------|---------|
+| **API Framework** | FastAPI (Python), Express.js (Node.js), Django (Python) | REST API development |
+| **Authentication** | JWT + Passport/PyJWT | Authentication and authorization |
+| **Database** | PostgreSQL (any hosting) | Relational data storage with RLS |
+| **File Storage** | Local storage, AWS S3, Google Cloud Storage | File storage and management |
 | **RAG Engine** | LangChain / LlamaIndex | RAG processing pipeline |
 
 ### Infrastructure Technologies
 
-| Layer | Technology | Purpose |
-|-------|-------------|---------|
-| **Hosting** | Hostinger | Application hosting |
-| **Database** | Supabase | Managed PostgreSQL database |
-| **Storage** | Supabase Storage | File storage service |
-| **Process Manager** | PM2 | Node.js process management |
+| Layer | Technology Options | Purpose |
+|-------|-------------------|---------|
+| **Hosting** | Any hosting provider (DigitalOcean, AWS, GCP, etc.) | Application hosting |
+| **Database** | PostgreSQL (self-hosted or managed) | Relational database |
+| **Storage** | Local or cloud storage | File storage service |
+| **Process Manager** | PM2, Gunicorn, Uvicorn | Backend process management |
 
 ## 🎯 Design Decisions
 
 ### 1. Simplified Multi-Tenancy
 **Decision**: Use shared database with tenant isolation
-**Rationale**: 
+**Rationale**:
 - Cost-effective for small to medium deployments
 - Easier maintenance and backups
 - Sufficient security with RLS policies
-- Simplified deployment on Hostinger
+- Compatible with any hosting provider
 
 ### 2. Three-Role Authentication
 **Decision**: Fixed three roles instead of complex permissions
@@ -612,7 +638,15 @@ VITE_APP_NAME=RAG Chat Dashboard
 - Sufficient for most SaaS use cases
 - Reduces complexity in UI and API
 
-### 3. React Context for State Management
+### 3. Backend-Agnostic Design
+**Decision**: Design frontend to work with any backend framework
+**Rationale**:
+- Flexibility in technology choices
+- Easier team collaboration with different skill sets
+- Future-proof for technology migrations
+- Wider adoption potential
+
+### 4. React Context for State Management
 **Decision**: Use React Context instead of Redux/Zustand
 **Rationale**:
 - Built into React, no additional dependencies
@@ -620,7 +654,7 @@ VITE_APP_NAME=RAG Chat Dashboard
 - Good for medium-sized applications
 - Easy to test and debug
 
-### 4. Mock API System
+### 5. Mock API System
 **Decision**: Comprehensive mock API for development
 **Rationale**:
 - Enables frontend development without backend
