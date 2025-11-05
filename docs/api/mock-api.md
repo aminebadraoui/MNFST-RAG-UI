@@ -1,6 +1,6 @@
 # Mock API Documentation
 
-Complete guide to the mock API system used for development and testing of the RAG Chat Admin Dashboard.
+Complete guide to the mock API system used for development and testing of the MNFST-RAG Admin Dashboard.
 
 ## 🎯 Overview
 

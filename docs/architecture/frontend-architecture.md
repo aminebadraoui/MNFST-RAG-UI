@@ -1,6 +1,6 @@
 # Frontend Architecture
 
-Comprehensive overview of the React frontend architecture, including component hierarchy, state management, and design patterns used in the RAG Chat Admin Dashboard.
+Comprehensive overview of the React frontend architecture, including component hierarchy, state management, and design patterns used in the MNFST-RAG Admin Dashboard.
 
 ## 🏗️ High-Level Architecture
 

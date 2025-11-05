@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-Get the RAG Chat Admin Dashboard running in minutes with this comprehensive quick start guide.
+Get the MNFST-RAG Admin Dashboard running in minutes with this comprehensive quick start guide.
 
 ## 🚀 Prerequisites
 
@@ -22,7 +22,7 @@ Get the RAG Chat Admin Dashboard running in minutes with this comprehensive quic
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd rag-chat-ui
+cd mnfst-rag
 
 # Install dependencies
 npm install
@@ -120,7 +120,7 @@ VITE_USE_MOCK_API=false
 VITE_API_BASE_URL=http://localhost:3001/api/v1
 
 # Application Settings
-VITE_APP_NAME=RAG Chat Dashboard
+VITE_APP_NAME=MNFST-RAG Dashboard
 VITE_APP_VERSION=1.0.0
 ```
 
@@ -144,7 +144,7 @@ VITE_MOCK_USER_PASSWORD=user123
 ## 🏗️ Project Structure Overview
 
 ```
-rag-chat-ui/
+mnfst-rag/
 ├── src/
 │   ├── components/          # Reusable UI components
 │   │   ├── ui/             # Base UI elements
@@ -321,7 +321,7 @@ VITE_USE_MOCK_API=true
 
 **Quick Start Complete!** 🎉
 
-You now have a running RAG Chat Admin Dashboard. Explore the features, experiment with different user roles, and start building your customizations.
+You now have a running MNFST-RAG Admin Dashboard. Explore the features, experiment with different user roles, and start building your customizations.
 
 **Next Steps**: Choose your path:
 - **Developer**: Read [Development Setup](./development-setup.md) for complete environment

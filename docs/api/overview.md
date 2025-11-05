@@ -1,6 +1,6 @@
 # API Reference & Authentication
 
-Complete guide to the RAG Chat API with three-role authentication, endpoint documentation, and authentication system.
+Complete guide to the MNFST-RAG API with three-role authentication, endpoint documentation, and authentication system.
 
 ## 📋 API Basics
 

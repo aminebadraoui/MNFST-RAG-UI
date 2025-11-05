@@ -1,6 +1,6 @@
-# Backend Contract for RAG Chat Application
+# Backend Contract for MNFST-RAG Application
 
-This document defines the complete contract that the backend must implement to ensure compatibility with the RAG Chat frontend client.
+This document defines the complete contract that the backend must implement to ensure compatibility with the MNFST-RAG frontend client.
 
 ## Table of Contents
 
@@ -20,7 +20,7 @@ This document defines the complete contract that the backend must implement to e
 
 ## Overview
 
-The RAG Chat application is a multi-tenant, role-based system that provides:
+The MNFST-RAG application is a multi-tenant, role-based system that provides:
 - Multi-tenant architecture with three-tier user roles
 - Document management and processing for RAG (Retrieval-Augmented Generation)
 - Real-time chat functionality with streaming responses

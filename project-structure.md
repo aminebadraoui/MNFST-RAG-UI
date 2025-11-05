@@ -1,9 +1,9 @@
-# Project Structure for RAG Chat Admin Dashboard
+# Project Structure for MNFST-RAG Admin Dashboard
 
 ## Complete File Structure
 
 ```
-rag-chat-ui/
+mnfst-rag/
 ├── public/
 │   ├── favicon.ico
 │   └── index.html

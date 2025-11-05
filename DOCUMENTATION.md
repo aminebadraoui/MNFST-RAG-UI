@@ -1,10 +1,10 @@
-# RAG Chat Admin Dashboard - Complete Documentation
+# MNFST RAG Admin Dashboard - Complete Documentation
 
-Welcome to the comprehensive documentation for the RAG Chat Admin Dashboard. This is a simplified multi-tenant RAG Chat SaaS solution with three user roles and complete data isolation.
+Welcome to the comprehensive documentation for the MNFST RAG Admin Dashboard. This is a simplified multi-tenant MNFST RAG SaaS solution with three user roles and complete data isolation.
 
 ## 🎯 What This Is
 
-A streamlined multi-tenant RAG Chat SaaS solution with three user roles:
+A streamlined multi-tenant MNFST RAG SaaS solution with three user roles:
 - **Superadmin**: Creates and manages tenants
 - **Tenant Admin**: Manages documents, social media, and users for their tenant
 - **User**: Accesses chatbot with tenant-specific knowledge base
@@ -181,8 +181,8 @@ We welcome contributions to improve the simplified multi-tenant system!
 
 ## 🔗 External Links
 
-- **Main Repository**: [github.com/your-org/rag-chat-ui](https://github.com/your-org/rag-chat-ui)
-- **Issue Tracker**: [github.com/your-org/rag-chat-ui/issues](https://github.com/your-org/rag-chat-ui/issues)
+- **Main Repository**: [github.com/your-org/mnfst-rag](https://github.com/your-org/mnfst-rag)
+- **Issue Tracker**: [github.com/your-org/mnfst-rag/issues](https://github.com/your-org/mnfst-rag/issues)
 - **Discord Community**: [discord.gg/rag-chat](https://discord.gg/rag-chat)
 
 ## 📄 License
@@ -193,7 +193,7 @@ This project is licensed under the MIT License - see the [LICENSE](../LICENSE) f
 
 **Last Updated**: November 2024  
 **Version**: 2.0.0 (Simplified)  
-**Maintainers**: RAG Chat Development Team
+**Maintainers**: MNFST RAG Development Team
 
 ## 📖 Documentation Summary
 
@@ -244,4 +244,4 @@ graph TD
     G --> H[Deployed Application]
 ```
 
-This unified documentation structure provides all essential information organized by theme and purpose, making it easier to understand, implement, and deploy the RAG Chat multi-tenant system.
+This unified documentation structure provides all essential information organized by theme and purpose, making it easier to understand, implement, and deploy the MNFST RAG multi-tenant system.

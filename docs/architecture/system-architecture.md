@@ -1,10 +1,10 @@
 # Architecture Guide
 
-Comprehensive overview of the RAG Chat Admin Dashboard system architecture, including multi-tenant design, components, data flow, and security. This architecture is backend-agnostic and compatible with various technologies including FastAPI, Node.js, etc.
+Comprehensive overview of the MNFST-RAG Admin Dashboard system architecture, including multi-tenant design, components, data flow, and security. This architecture is backend-agnostic and compatible with various technologies including FastAPI, Node.js, etc.
 
 ## 🏗️ High-Level Architecture
 
-The simplified multi-tenant RAG Chat system enables SaaS deployment with three user roles and complete data isolation.
+The simplified multi-tenant MNFST-RAG system enables SaaS deployment with three user roles and complete data isolation.
 
 ```mermaid
 graph TB
@@ -575,7 +575,7 @@ DATABASE_URL=postgresql://[your-postgres-connection]
 
 # Application Configuration
 VITE_API_URL=https://your-domain.com/api/v1
-VITE_APP_NAME=RAG Chat Dashboard
+VITE_APP_NAME=MNFST-RAG Dashboard
 
 # Storage Configuration
 STORAGE_URL=[your-storage-service-url]

@@ -1,10 +1,10 @@
 # Theme System
 
-Complete guide to the RAG Chat theme system, including dark/light mode toggle, custom styling, and theme configuration.
+Complete guide to the MNFST-RAG theme system, including dark/light mode toggle, custom styling, and theme configuration.
 
 ## 🎨 Overview
 
-The RAG Chat application includes a comprehensive theme system that supports both light and dark modes with smooth transitions and persistent user preferences.
+The MNFST-RAG application includes a comprehensive theme system that supports both light and dark modes with smooth transitions and persistent user preferences.
 
 ## 🌓 Theme Architecture
 

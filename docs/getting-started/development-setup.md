@@ -1,6 +1,6 @@
 # Development Guide
 
-Comprehensive guide for developing RAG Chat Admin Dashboard, including environment setup, project structure, component patterns, and best practices. This guide is frontend-focused and backend-agnostic, compatible with various backend technologies including FastAPI, Node.js, etc.
+Comprehensive guide for developing MNFST-RAG Admin Dashboard, including environment setup, project structure, component patterns, and best practices. This guide is frontend-focused and backend-agnostic, compatible with various backend technologies including FastAPI, Node.js, etc.
 
 ## 🚀 Quick Start
 
@@ -27,7 +27,7 @@ Comprehensive guide for developing RAG Chat Admin Dashboard, including environme
 1. **Clone the Repository**
 ```bash
 git clone <repository-url>
-cd rag-chat-ui
+cd mnfst-rag
 ```
 
 2. **Install Dependencies**
@@ -72,7 +72,7 @@ Create `.env` file with your configuration:
 ```env
 # Application Configuration
 VITE_API_BASE_URL=http://localhost:3001/api/v1
-VITE_APP_NAME=RAG Chat Dashboard
+VITE_APP_NAME=MNFST-RAG Dashboard
 VITE_APP_VERSION=1.0.0
 
 # Mock API Configuration
@@ -387,7 +387,7 @@ Create `.vscode/launch.json`:
 ### Complete File Structure
 
 ```
-rag-chat-ui/
+mnfst-rag/
 ├── public/
 │   ├── favicon.ico
 │   └── index.html

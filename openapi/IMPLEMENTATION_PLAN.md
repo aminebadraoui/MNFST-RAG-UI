@@ -28,12 +28,12 @@ openapi/
 ```yaml
 openapi: 3.0.3
 info:
-  title: RAG Chat API
-  description: Multi-tenant RAG Chat application API with role-based access control
+  title: MNFST-RAG API
+  description: Multi-tenant MNFST-RAG application API with role-based access control
   version: 1.0.0
   contact:
-    name: RAG Chat Team
-    email: support@ragchat.com
+    name: MNFST-RAG Team
+    email: support@mnfst-rag.com
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
@@ -237,4 +237,4 @@ Chat functionality:
 7. **File Handling**: Secure file upload with type and size validation
 8. **Streaming**: Proper SSE implementation for chat streaming
 
-This plan provides a complete roadmap for implementing the OpenAPI specification that any backend can follow to ensure compatibility with the RAG Chat frontend.
+This plan provides a complete roadmap for implementing the OpenAPI specification that any backend can follow to ensure compatibility with the MNFST-RAG frontend.

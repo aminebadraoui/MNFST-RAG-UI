@@ -1,10 +1,10 @@
-# RAG Chat Admin Dashboard - Simplified Multi-Tenant
+# MNFST RAG Admin Dashboard - Simplified Multi-Tenant
 
-A simplified multi-tenant RAG Chat SaaS solution built with React, TypeScript, and Supabase. Perfect for self-hosting on Hostinger.
+A simplified multi-tenant MNFST RAG SaaS solution built with React, TypeScript, and Supabase. Perfect for self-hosting on Hostinger.
 
 ## 🎯 What This Is
 
-A streamlined multi-tenant RAG Chat system with three user roles:
+A streamlined multi-tenant MNFST RAG system with three user roles:
 - **Superadmin**: Creates and manages tenants
 - **Tenant Admin**: Manages documents, social media, and users for their tenant  
 - **User**: Accesses chatbot with tenant-specific knowledge base
@@ -29,8 +29,8 @@ A streamlined multi-tenant RAG Chat system with three user roles:
 
 ```bash
 # Clone repository
-git clone https://github.com/your-org/rag-chat-ui.git
-cd rag-chat-ui
+git clone https://github.com/your-org/mnfst-rag.git
+cd mnfst-rag
 
 # Install dependencies
 npm install
@@ -52,7 +52,7 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 
 # API Configuration
 VITE_API_URL=http://localhost:3001/api/v1
-VITE_APP_NAME=RAG Chat Dashboard
+VITE_APP_NAME=MNFST RAG Dashboard
 ```
 
 ## 📚 Documentation
@@ -267,8 +267,8 @@ We welcome contributions! Please see our [Development Guide](./docs/DEVELOPMENT.
 - **Development Guide**: [docs/DEVELOPMENT.md](./docs/DEVELOPMENT.md)
 - **Database Schema**: [docs/DATABASE.md](./docs/DATABASE.md)
 - **Deployment Guide**: [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)
-- **Main Repository**: [github.com/your-org/rag-chat-ui](https://github.com/your-org/rag-chat-ui)
-- **Issue Tracker**: [github.com/your-org/rag-chat-ui/issues](https://github.com/your-org/rag-chat-ui/issues)
+- **Main Repository**: [github.com/your-org/mnfst-rag](https://github.com/your-org/mnfst-rag)
+- **Issue Tracker**: [github.com/your-org/mnfst-rag/issues](https://github.com/your-org/mnfst-rag/issues)
 
 ## 📄 License
 
@@ -278,4 +278,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Last Updated**: November 2024  
 **Version**: 2.0.0 (Simplified)  
-**Maintainers**: RAG Chat Development Team
+**Maintainers**: MNFST RAG Development Team

@@ -1,10 +1,10 @@
 # Client Management System
 
-Complete guide to client management in the RAG Chat multi-tenant SaaS platform, including client onboarding, configuration, and lifecycle management.
+Complete guide to client management in the MNFST-RAG multi-tenant SaaS platform, including client onboarding, configuration, and lifecycle management.
 
 ## 🎯 Overview
 
-The client management system enables superadmins to manage multiple tenants (clients) within the RAG Chat platform. Each tenant represents a separate client organization with complete data isolation and dedicated resources.
+The client management system enables superadmins to manage multiple tenants (clients) within the MNFST-RAG platform. Each tenant represents a separate client organization with complete data isolation and dedicated resources.
 
 ## 🏢 Client Model
 
@@ -245,13 +245,13 @@ interface AdminUserSetup {
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Welcome to RAG Chat</title>
+    <title>Welcome to MNFST-RAG</title>
 </head>
 <body>
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #3b82f6;">Welcome to RAG Chat!</h1>
+        <h1 style="color: #3b82f6;">Welcome to MNFST-RAG!</h1>
         <p>Hi {{firstName}},</p>
-        <p>Your organization <strong>{{organizationName}}</strong> has been successfully set up on RAG Chat.</p>
+        <p>Your organization <strong>{{organizationName}}</strong> has been successfully set up on MNFST-RAG.</p>
         
         <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h2>Your Login Details:</h2>
@@ -275,7 +275,7 @@ interface AdminUserSetup {
         <p>Need help? Contact our support team at <a href="mailto:support@ragchat.com">support@ragchat.com</a></p>
         
         <footer style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #6b7280;">
-            <p>&copy; 2024 RAG Chat. All rights reserved.</p>
+            <p>&copy; 2024 MNFST-RAG. All rights reserved.</p>
         </footer>
     </div>
 </body>

@@ -1,10 +1,10 @@
 # Configuration Guide
 
-Complete guide to configuring the RAG Chat Admin Dashboard for development and production environments.
+Complete guide to configuring the MNFST-RAG Admin Dashboard for development and production environments.
 
 ## 🎯 Overview
 
-The RAG Chat Dashboard uses environment variables for configuration, supporting both development and production setups with mock and real API modes.
+The MNFST-RAG Dashboard uses environment variables for configuration, supporting both development and production setups with mock and real API modes.
 
 ## ⚙️ Environment Variables
 
@@ -12,9 +12,9 @@ The RAG Chat Dashboard uses environment variables for configuration, supporting 
 
 ```env
 # Application Identity
-VITE_APP_NAME=RAG Chat Dashboard
+VITE_APP_NAME=MNFST-RAG Dashboard
 VITE_APP_VERSION=1.0.0
-VITE_APP_DESCRIPTION=Multi-tenant RAG Chat SaaS solution
+VITE_APP_DESCRIPTION=Multi-tenant MNFST-RAG SaaS solution
 
 # API Configuration
 VITE_API_BASE_URL=http://localhost:3001/api/v1
@@ -327,8 +327,8 @@ VITE_ENABLE_GESTURE_SUPPORT=true
 ```env
 # PWA Configuration
 VITE_ENABLE_PWA=true
-VITE_PWA_NAME=RAG Chat Dashboard
-VITE_PWA_SHORT_NAME=RAG Chat
+VITE_PWA_NAME=MNFST-RAG Dashboard
+VITE_PWA_SHORT_NAME=MNFST-RAG
 VITE_PWA_THEME_COLOR=#3b82f6
 ```
 

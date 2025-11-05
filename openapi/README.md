@@ -1,6 +1,6 @@
-# OpenAPI Specification for RAG Chat Frontend
+# OpenAPI Specification for MNFST-RAG Frontend
 
-This folder contains the complete OpenAPI 3.0.3 specification that any backend should respect to communicate with this RAG Chat frontend.
+This folder contains the complete OpenAPI 3.0.3 specification that any backend should respect to communicate with this MNFST-RAG frontend.
 
 ## Structure
 
@@ -22,7 +22,7 @@ This specification is organized into modular files for better maintainability:
 
 ## API Overview
 
-The RAG Chat application is a multi-tenant, role-based system with the following key features:
+The MNFST-RAG application is a multi-tenant, role-based system with the following key features:
 
 ### Multi-Tenancy
 - Three-tier user roles: superadmin, tenant_admin, user
@@ -198,4 +198,4 @@ The OpenAPI specification can be validated using:
 - `paths/social.yaml` - Social media link management
 - `paths/chat.yaml` - Chat sessions, messages, and streaming
 
-This specification ensures complete compatibility between any backend implementation and the RAG Chat frontend.
+This specification ensures complete compatibility between any backend implementation and the MNFST-RAG frontend.

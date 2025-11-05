@@ -14,7 +14,7 @@ type SettingsAction =
 
 const initialState: SettingsState = {
   apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api',
-  appName: import.meta.env.VITE_APP_NAME || 'RAG Chat Dashboard',
+  appName: import.meta.env.VITE_APP_NAME || 'MNFST RAG Dashboard',
   appVersion: import.meta.env.VITE_APP_VERSION || '1.0.0',
   theme: 'dark',
 };

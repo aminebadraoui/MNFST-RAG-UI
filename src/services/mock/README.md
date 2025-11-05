@@ -1,6 +1,6 @@
 # Mock API Services
 
-This directory contains mock implementations of all API services for the RAG Chat application. These mock services enable frontend development and testing without requiring a backend implementation.
+This directory contains mock implementations of all API services for the MNFST-RAG application. These mock services enable frontend development and testing without requiring a backend implementation.
 
 ## Files
 

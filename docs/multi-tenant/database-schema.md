@@ -1,6 +1,6 @@
 # Database Schema & Types
 
-Complete guide to the RAG Chat database structure, TypeScript type definitions, and data relationships for the simplified multi-tenant system using PostgreSQL.
+Complete guide to the MNFST-RAG database structure, TypeScript type definitions, and data relationships for the simplified multi-tenant system using PostgreSQL.
 
 ## 🗄️ Database Overview
 

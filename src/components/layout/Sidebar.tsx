@@ -127,7 +127,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex items-center justify-between h-16 px-4 border-b border-light-border-primary dark:border-dark-border-primary">
-          <h1 className="text-lg font-semibold text-light-text-primary dark:text-dark-text-primary">RAG Chat</h1>
+          <h1 className="text-lg font-semibold text-light-text-primary dark:text-dark-text-primary">MNFST RAG</h1>
           <button
             className="md:hidden rounded-md p-2 text-light-text-quaternary dark:text-dark-text-quaternary hover:text-light-text-tertiary dark:hover:text-dark-text-tertiary hover:bg-light-bg-tertiary dark:hover:bg-dark-bg-tertiary focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500"
             onClick={() => setSidebarOpen?.(false)}

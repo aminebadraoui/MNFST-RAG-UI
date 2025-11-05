@@ -1,11 +1,11 @@
 # Project Structure Reference
 
-Complete reference for the RAG Chat Admin Dashboard project structure, file organization, and naming conventions.
+Complete reference for the MNFST-RAG Admin Dashboard project structure, file organization, and naming conventions.
 
 ## 📁 Root Directory Structure
 
 ```
-rag-chat-ui/
+mnfst-rag/
 ├── docs/                       # Documentation
 ├── public/                     # Static assets
 ├── src/                        # Source code

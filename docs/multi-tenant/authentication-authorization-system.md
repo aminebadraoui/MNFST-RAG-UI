@@ -1,10 +1,10 @@
 # Authentication & Authorization System
 
-Complete guide to the authentication and authorization system for the RAG Chat multi-tenant SaaS platform, including user roles, permissions, and security measures.
+Complete guide to the authentication and authorization system for the MNFST-RAG multi-tenant SaaS platform, including user roles, permissions, and security measures.
 
 ## 🎯 Overview
 
-The authentication and authorization system ensures secure access to the RAG Chat platform while maintaining strict data isolation between tenants. The system implements role-based access control (RBAC) with multi-level security measures.
+The authentication and authorization system ensures secure access to the MNFST-RAG platform while maintaining strict data isolation between tenants. The system implements role-based access control (RBAC) with multi-level security measures.
 
 ## 🔐 Authentication Architecture
 
@@ -416,8 +416,8 @@ class TwoFactorAuthService {
   // Generate TOTP secret
   generateTOTPSecret(userId: string): TOTPSetup {
     const secret = speakeasy.generateSecret({
-      name: `RAG Chat (${userId})`,
-      issuer: 'RAG Chat',
+      name: `MNFST-RAG (${userId})`,
+      issuer: 'MNFST-RAG',
       length: 32
     });
     
@@ -452,7 +452,7 @@ class TwoFactorAuthService {
     
     await this.smsService.send({
       to: phoneNumber,
-      message: `Your RAG Chat verification code is: ${code}`
+      message: `Your MNFST-RAG verification code is: ${code}`
     });
   }
   

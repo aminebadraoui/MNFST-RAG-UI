@@ -1,6 +1,6 @@
 # Installation Guide
 
-Step-by-step instructions for installing and setting up the RAG Chat Admin Dashboard development environment.
+Step-by-step instructions for installing and setting up the MNFST-RAG Admin Dashboard development environment.
 
 ## 🚀 Quick Start
 
@@ -25,10 +25,10 @@ Step-by-step instructions for installing and setting up the RAG Chat Admin Dashb
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/rag-chat-ui.git
+git clone https://github.com/your-org/mnfst-rag.git
 
 # Navigate to project directory
-cd rag-chat-ui
+cd mnfst-rag
 
 # Checkout the correct branch (if needed)
 git checkout main
@@ -78,7 +78,7 @@ nano .env  # or use your preferred editor
 ```env
 # Application Configuration
 VITE_API_BASE_URL=http://localhost:3001/api/v1
-VITE_APP_NAME=RAG Chat Dashboard
+VITE_APP_NAME=MNFST-RAG Dashboard
 VITE_APP_VERSION=1.0.0
 
 # Mock API Configuration (for development)
@@ -209,13 +209,13 @@ npm config set registry https://registry.npm.taobao.org
 
 ```bash
 # Build Docker image
-docker build -t rag-chat-ui .
+docker build -t mnfst-rag .
 
 # Run container
-docker run -p 5173:5173 rag-chat-ui
+docker run -p 5173:5173 mnfst-rag
 
 # Run with volume mount for development
-docker run -p 5173:5173 -v $(pwd):/app rag-chat-ui npm run dev
+docker run -p 5173:5173 -v $(pwd):/app mnfst-rag npm run dev
 ```
 
 ### Using Docker Compose

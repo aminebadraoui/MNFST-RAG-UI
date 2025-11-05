@@ -1,10 +1,10 @@
 # Tenant Management Endpoints
 
-Complete API specification for tenant management operations in the RAG Chat multi-tenant system.
+Complete API specification for tenant management operations in the MNFST-RAG multi-tenant system.
 
 ## 🏢 Overview
 
-Tenant management endpoints allow superadmins to create, manage, and monitor tenants in the multi-tenant RAG Chat system. These endpoints are restricted to users with the `superadmin` role.
+Tenant management endpoints allow superadmins to create, manage, and monitor tenants in the multi-tenant MNFST-RAG system. These endpoints are restricted to users with the `superadmin` role.
 
 ## 🔐 Authentication & Authorization
 

@@ -1,10 +1,10 @@
 # Multi-Tenant API Specification
 
-Complete API specification for the RAG Chat multi-tenant SaaS platform, including all endpoints, request/response formats, and authentication requirements.
+Complete API specification for the MNFST-RAG multi-tenant SaaS platform, including all endpoints, request/response formats, and authentication requirements.
 
 ## 🎯 Overview
 
-This document provides a comprehensive specification of all API endpoints available in the RAG Chat multi-tenant platform. The API follows RESTful principles and uses JSON for all request/response payloads.
+This document provides a comprehensive specification of all API endpoints available in the MNFST-RAG multi-tenant platform. The API follows RESTful principles and uses JSON for all request/response payloads.
 
 ## 📋 API Basics
 

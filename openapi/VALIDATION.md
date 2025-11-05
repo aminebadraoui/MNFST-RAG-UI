@@ -1,6 +1,6 @@
 # OpenAPI Specification Validation
 
-This document outlines the validation process and completeness check for the RAG Chat API specification.
+This document outlines the validation process and completeness check for the MNFST-RAG API specification.
 
 ## Validation Checklist
 
@@ -199,4 +199,4 @@ swagger-parser resolve openapi/openapi.yaml
 3. Set up automated testing against the specification
 4. Establish versioning strategy for future updates
 
-This validation confirms that the RAG Chat API specification is comprehensive, well-structured, and ready for implementation.
+This validation confirms that the MNFST-RAG API specification is comprehensive, well-structured, and ready for implementation.

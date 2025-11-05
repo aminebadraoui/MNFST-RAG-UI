@@ -1,6 +1,6 @@
 # Frontend Development Guide
 
-Comprehensive guide for React frontend development, including patterns, best practices, and implementation details for the RAG Chat Admin Dashboard.
+Comprehensive guide for React frontend development, including patterns, best practices, and implementation details for the MNFST-RAG Admin Dashboard.
 
 ## 🚀 Development Environment Setup
 

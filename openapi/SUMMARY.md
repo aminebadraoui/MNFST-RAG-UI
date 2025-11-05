@@ -1,6 +1,6 @@
-# RAG Chat API Specification Summary
+# MNFST-RAG API Specification Summary
 
-This document provides a comprehensive overview of the complete OpenAPI 3.0.3 specification created for the RAG Chat frontend.
+This document provides a comprehensive overview of the complete OpenAPI 3.0.3 specification created for the MNFST-RAG frontend.
 
 ## 📁 File Structure
 
@@ -258,4 +258,4 @@ This OpenAPI specification is **COMPLETE** and **PRODUCTION-READY** with:
 4. **SDK Generation**: Create client libraries
 5. **Deployment**: Set up production infrastructure
 
-This specification provides everything needed to implement a fully compatible backend for the RAG Chat frontend.
+This specification provides everything needed to implement a fully compatible backend for the MNFST-RAG frontend.

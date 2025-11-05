@@ -29,7 +29,7 @@ const LoginPage: React.FC = () => {
             </svg>
           </div>
           <h2 className="text-4xl font-bold text-light-text-primary dark:text-dark-text-primary mb-2 bg-clip-text text-transparent bg-gradient-to-r from-light-text-primary to-light-text-secondary dark:from-dark-text-primary dark:to-dark-text-secondary">
-            RAG Chat Dashboard
+            MNFST RAG Dashboard
           </h2>
           <p className="text-light-text-tertiary dark:text-dark-text-tertiary max-w-sm mx-auto">
             Sign in to manage your chatbot and documents
@@ -41,7 +41,7 @@ const LoginPage: React.FC = () => {
         </div>
         
         <div className="text-center text-sm text-light-text-quaternary dark:text-dark-text-quaternary animate-fade-in">
-          <p>© 2024 RAG Chat Dashboard. All rights reserved.</p>
+          <p>© 2024 MNFST RAG Dashboard. All rights reserved.</p>
         </div>
       </div>
     </div>

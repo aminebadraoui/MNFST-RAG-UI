@@ -54,7 +54,7 @@ const Header: React.FC = () => {
                 <ChatBubbleLeftIcon className="h-5 w-5 text-white" />
               </div>
               <span className="ml-3 text-xl font-semibold text-light-text-primary dark:text-dark-text-primary">
-                RAG Chat
+                MNFST RAG
               </span>
             </Link>
           </div>

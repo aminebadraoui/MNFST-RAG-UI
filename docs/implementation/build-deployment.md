@@ -1,10 +1,10 @@
 # Deployment Guide
 
-Complete guide to deploying the RAG Chat Admin Dashboard to production, compatible with various hosting providers and PostgreSQL databases.
+Complete guide to deploying the MNFST-RAG Admin Dashboard to production, compatible with various hosting providers and PostgreSQL databases.
 
 ## 🎯 Deployment Overview
 
-The simplified multi-tenant RAG Chat system is designed for flexible deployment on various hosting platforms with PostgreSQL as the database backend.
+The simplified multi-tenant MNFST-RAG system is designed for flexible deployment on various hosting platforms with PostgreSQL as the database backend.
 
 ### Deployment Architecture
 
@@ -586,7 +586,7 @@ Create `deploy.sh`:
 ```bash
 #!/bin/bash
 
-echo "Deploying RAG Chat Application..."
+echo "Deploying MNFST-RAG Application..."
 
 # 1. Install dependencies
 npm ci --production

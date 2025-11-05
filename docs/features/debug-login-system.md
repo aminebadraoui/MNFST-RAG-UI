@@ -1,6 +1,6 @@
 # Debug Login System
 
-Complete guide to the RAG Chat debug login system, including development-only quick login, role-based authentication, and environment configuration.
+Complete guide to the MNFST-RAG debug login system, including development-only quick login, role-based authentication, and environment configuration.
 
 ## 🎯 Overview
 
