@@ -1,6 +1,6 @@
 # MNFST RAG Admin Dashboard - Simplified Multi-Tenant
 
-A simplified multi-tenant MNFST RAG SaaS solution built with React, TypeScript, and Supabase. Perfect for self-hosting on Hostinger.
+A simplified multi-tenant MNFST RAG SaaS solution built with React and TypeScript. Perfect for self-hosting.
 
 ## 🎯 What This Is
 
@@ -16,14 +16,11 @@ A streamlined multi-tenant MNFST RAG system with three user roles:
 - ✅ Social media integration for knowledge base
 - ✅ Real-time chat with streaming responses
 - ✅ Self-hosted deployment ready
-- ✅ Supabase database integration
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 18+ 
-- Supabase account
-- Hostinger hosting account (optional)
 
 ### Installation
 
@@ -37,7 +34,7 @@ npm install
 
 # Set up environment variables
 cp .env.example .env
-# Edit .env with your Supabase credentials
+# Edit .env with your configuration
 
 # Start development server
 npm run dev
@@ -46,10 +43,6 @@ npm run dev
 ### Environment Setup
 
 ```env
-# Supabase Configuration
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-
 # API Configuration
 VITE_API_URL=http://localhost:3001/api/v1
 VITE_APP_NAME=MNFST RAG Dashboard
@@ -69,7 +62,7 @@ VITE_APP_NAME=MNFST RAG Dashboard
 - **[API Reference](./docs/API.md)** - Complete API reference with authentication and endpoints
 
 ### 🚀 Deployment
-- **[Deployment Guide](./docs/DEPLOYMENT.md)** - Production deployment on Hostinger with Supabase
+- **[Deployment Guide](./docs/DEPLOYMENT.md)** - Production deployment guide
 
 ## 🏗️ System Architecture
 
@@ -102,13 +95,10 @@ graph TD
 
 **Backend:**
 - Node.js with Express
-- Supabase for database and auth
 - JWT for session management
 - PostgreSQL with pgvector
 
 **Infrastructure:**
-- Hostinger for hosting
-- Supabase for managed database
 - Simple deployment without complex orchestration
 
 ## 🎯 Key Features
@@ -144,49 +134,29 @@ graph TD
 
 ## 🚀 Deployment
 
-### Self-Hosted on Hostinger
+### Self-Hosted Deployment
 
 ```bash
 # 1. Build application
 npm run build
 
-# 2. Deploy to Hostinger
-# Upload build files to Hostinger hosting
+# 2. Deploy to your hosting provider
+# Upload build files to your hosting
 # Configure environment variables
 # Set up domain and SSL
 ```
 
-### Supabase Setup
+### Database Setup
 
-1. **Create Supabase Project**
-   - Go to [supabase.com](https://supabase.com)
-   - Create new project
-   - Get project URL and keys
-
-2. **Set Up Database**
+1. **Set Up Database**
    - Run schema from [Database Schema](./docs/DATABASE.md)
    - Enable row level security
    - Create necessary indexes
 
-3. **Configure Authentication**
+2. **Configure Authentication**
    - Enable JWT authentication
    - Set up auth providers
    - Configure redirect URLs
-
-## 📋 Project Status
-
-### ✅ Completed
-- [x] Simplified multi-tenant architecture
-- [x] Three-role authentication system
-- [x] Basic tenant data isolation
-- [x] Essential CRUD operations
-- [x] Self-hosted deployment ready
-- [x] Comprehensive documentation
-
-### 🔄 In Progress
-- [ ] Implementation of simplified system
-- [ ] Migration from complex to simple
-- [ ] Testing and validation
 
 ## 🛠️ Development
 
@@ -234,31 +204,6 @@ src/
 └── styles/            # Global styles
 ```
 
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Development Guide](./docs/DEVELOPMENT.md) for:
-- Development workflow
-- Code standards
-- Testing requirements
-- Documentation guidelines
-
-## 📞 Getting Help
-
-### 📚 Documentation First
-1. Check [Documentation Overview](./docs/README.md) for complete guides
-2. Search specific documentation for your topic
-3. Review the appropriate guide for your role
-
-### 🐛 Issue Reporting
-1. Check existing issues for duplicates
-2. Use issue templates when creating new issues
-3. Include detailed reproduction steps
-
-### 💬 Community Support
-1. Join our Discord community
-2. Participate in GitHub discussions
-3. Ask questions in appropriate channels
-
 ## 🔗 Links
 
 - **Documentation**: [docs/README.md](./docs/README.md)
@@ -276,6 +221,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last Updated**: November 2024  
 **Version**: 2.0.0 (Simplified)  
 **Maintainers**: MNFST RAG Development Team
