@@ -115,18 +115,30 @@ const DocumentsPage: React.FC = () => {
     e.preventDefault();
     setIsDragOver(false);
     
-    const files = Array.from(e.dataTransfer.files);
+    const files = Array.from(e.dataTransfer.files) as File[];
     if (files.length === 0) return;
     
     try {
-      // Upload all files at once using the consolidated endpoint
-      await documentAPI.uploadDocuments(files);
+      // Upload all files using the R2-based flow
+      await documentAPI.uploadDocuments(files, (progress: number) => {
+        // For now, we'll just log progress - could be enhanced with UI progress bar
+        console.log(`Upload progress: ${progress}%`);
+      });
       
       // Refresh documents list
       const response = await documentAPI.getDocuments();
       setDocuments(response.documents);
     } catch (err: any) {
-      setError(err.message || 'Failed to upload documents');
+      // Enhanced error handling for R2-specific errors
+      if (err.message.includes('presigned')) {
+        setError('Failed to get upload permission. Please try again.');
+      } else if (err.message.includes('status 4')) {
+        setError('File upload failed. Please check the file format and size.');
+      } else if (err.message.includes('network') || err.message.includes('timeout')) {
+        setError('Network error during upload. Please check your connection and try again.');
+      } else {
+        setError(err.message || 'Failed to upload documents');
+      }
     }
   };
 

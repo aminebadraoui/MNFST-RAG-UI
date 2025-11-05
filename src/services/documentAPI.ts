@@ -6,7 +6,9 @@ import {
   UploadRequest,
   UploadResponse,
   UploadStatusResponse,
-  MultipleUploadProgressCallback
+  MultipleUploadProgressCallback,
+  PresignedUrlResponse,
+  RegisterUploadRequest
 } from '../types';
 
 export const documentAPI = {
@@ -15,34 +17,55 @@ export const documentAPI = {
     return response.data;
   },
 
+  // NEW: Get presigned URL from backend
+  getPresignedUrl: async (file: File): Promise<PresignedUrlResponse> => {
+    const response = await apiClient.post<PresignedUrlResponse>('/documents/presigned-url', {
+      file_name: file.name,
+      mime_type: file.type,
+      file_size: file.size
+    });
+    return response.data;
+  },
+
+  // NEW: Register uploaded document with backend
+  registerUpload: async (uploadData: RegisterUploadRequest): Promise<Document> => {
+    const response = await apiClient.post<Document>('/documents/register-upload', uploadData);
+    return response.data;
+  },
+
+  // ENHANCED: Upload with R2 support
   uploadDocuments: async (
     files: File[],
     onProgress?: MultipleUploadProgressCallback | UploadProgressCallback
   ): Promise<UploadResponse> => {
-    const formData = new FormData();
-    files.forEach(file => {
-      formData.append('files', file);
-    });
-    
-    const response = await apiClient.upload<UploadResponse>('/documents/upload', formData, {
-      onUploadProgress: (progressEvent) => {
-        if (onProgress && progressEvent.total) {
-          const overallProgress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          
-          // Handle single file progress callback
-          if (files.length === 1 && typeof onProgress === 'function') {
-            (onProgress as UploadProgressCallback)(overallProgress);
-          }
-          // Handle multiple files progress callback
-          else if (files.length > 1 && typeof onProgress === 'function') {
-            // For multiple files, we'd need to track individual file progress
-            // This is a simplified implementation
-            (onProgress as MultipleUploadProgressCallback)([{ fileId: 'multiple', progress: overallProgress }]);
-          }
-        }
-      },
-    });
-    return response.data;
+    const documents: Document[] = [];
+
+    for (const file of files) {
+      try {
+        // Step 1: Get presigned URL from backend
+        const presignedData = await documentAPI.getPresignedUrl(file);
+        
+        // Step 2: Upload directly to R2
+        await uploadToR2(file, presignedData.upload_url, onProgress);
+        
+        // Step 3: Register with backend
+        const document = await documentAPI.registerUpload({
+          document_id: presignedData.document_id,
+          file_name: file.name,
+          file_key: presignedData.file_key,
+          public_url: presignedData.public_url,
+          file_size: file.size,
+          mime_type: file.type
+        });
+        
+        documents.push(document);
+      } catch (error) {
+        console.error('Upload failed:', error);
+        throw error;
+      }
+    }
+
+    return { documents };
   },
 
   getUploadStatus: async (uploadId: string): Promise<UploadStatusResponse> => {
@@ -53,4 +76,41 @@ export const documentAPI = {
   deleteDocument: async (documentId: string): Promise<void> => {
     await apiClient.delete(`/documents/${documentId}`);
   },
+};
+
+// Helper function for direct R2 upload
+const uploadToR2 = (
+  file: File,
+  uploadUrl: string,
+  onProgress?: MultipleUploadProgressCallback | UploadProgressCallback
+): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    
+    xhr.upload.addEventListener('progress', (e) => {
+      if (e.lengthComputable && onProgress) {
+        const progress = Math.round((e.loaded / e.total) * 100);
+        
+        if (typeof onProgress === 'function') {
+          (onProgress as UploadProgressCallback)(progress);
+        }
+      }
+    });
+    
+    xhr.addEventListener('load', () => {
+      if (xhr.status === 200) {
+        resolve();
+      } else {
+        reject(new Error(`Upload failed with status ${xhr.status}`));
+      }
+    });
+    
+    xhr.addEventListener('error', () => {
+      reject(new Error('Upload failed'));
+    });
+    
+    xhr.open('PUT', uploadUrl);
+    xhr.setRequestHeader('Content-Type', file.type);
+    xhr.send(file);
+  });
 };

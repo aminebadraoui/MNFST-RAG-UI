@@ -45,3 +45,20 @@ export interface UploadProgressCallback {
 export interface MultipleUploadProgressCallback {
   (progress: { fileId: string; progress: number }[]): void;
 }
+
+// R2-specific interfaces for Cloudflare R2 integration
+export interface PresignedUrlResponse {
+  upload_url: string;
+  file_key: string;
+  document_id: string;
+  public_url: string;
+}
+
+export interface RegisterUploadRequest {
+  document_id: string;
+  file_name: string;
+  file_key: string;
+  public_url: string;
+  file_size: number;
+  mime_type: string;
+}

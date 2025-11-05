@@ -6,7 +6,9 @@ import {
   UploadResponse,
   UploadStatusResponse,
   MultipleUploadProgressCallback,
-  DocumentUploadStatus
+  DocumentUploadStatus,
+  PresignedUrlResponse,
+  RegisterUploadRequest
 } from '../../types';
 import { mockApiClient } from './mockApiClient';
 import { MockDataGenerator } from './mockDataGenerator';
@@ -18,6 +20,67 @@ let mockUploadStatuses: Record<string, UploadStatusResponse> = {};
 export const mockDocumentAPI = {
   getDocuments: async (): Promise<GetDocumentsResponse> => {
     return mockApiClient.get({ documents: mockDocuments });
+  },
+
+  // NEW: Mock implementation for getting presigned URL
+  getPresignedUrl: async (file: File): Promise<PresignedUrlResponse> => {
+    // Simulate validation
+    const allowedTypes = ["application/pdf", "application/msword",
+                       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                       "text/plain", "text/markdown"];
+    
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error("File type not allowed");
+    }
+    
+    const maxSize = 100 * 1024 * 1024; // 100MB
+    if (file.size > maxSize) {
+      throw new Error("File size exceeds limit");
+    }
+    
+    const documentId = MockDataGenerator.generateId();
+    const fileKey = `tenant-123/${file.name}`;
+    
+    return {
+      upload_url: `https://mock-r2-upload-url.com/${fileKey}`,
+      file_key: fileKey,
+      document_id: documentId,
+      public_url: `https://mock-r2-public-url.com/${fileKey}`
+    };
+  },
+
+  // NEW: Mock implementation for registering upload
+  registerUpload: async (uploadData: RegisterUploadRequest): Promise<Document> => {
+    const document: Document = {
+      id: uploadData.document_id,
+      filename: uploadData.file_name,
+      originalName: uploadData.file_name,
+      size: uploadData.file_size,
+      mimeType: uploadData.mime_type,
+      status: 'uploaded',
+      uploadedAt: new Date().toISOString()
+    };
+    
+    // Add to mock documents
+    mockDocuments.unshift(document);
+    
+    // Simulate processing
+    setTimeout(() => {
+      const doc = mockDocuments.find(d => d.id === document.id);
+      if (doc) {
+        doc.status = 'processing';
+      }
+    }, 2000);
+    
+    setTimeout(() => {
+      const doc = mockDocuments.find(d => d.id === document.id);
+      if (doc) {
+        doc.status = 'processed';
+        doc.processedAt = new Date().toISOString();
+      }
+    }, 5000);
+    
+    return document;
   },
 
   uploadDocuments: async (
