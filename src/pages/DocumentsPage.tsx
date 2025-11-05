@@ -119,10 +119,8 @@ const DocumentsPage: React.FC = () => {
     if (files.length === 0) return;
     
     try {
-      // Upload each file
-      for (const file of files) {
-        await documentAPI.uploadDocument(file);
-      }
+      // Upload all files at once using the consolidated endpoint
+      await documentAPI.uploadDocuments(files);
       
       // Refresh documents list
       const response = await documentAPI.getDocuments();

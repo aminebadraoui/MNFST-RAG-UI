@@ -1,0 +1,159 @@
+paths:
+  /sessions:
+    get:
+      tags:
+        - Chat
+      summary: Get chat sessions
+      description: Retrieve all chat sessions for current user
+      operationId: getSessions
+      security:
+        $ref: '../components/security.yaml#/components/securityRequirements/AuthenticatedUser'
+      parameters:
+        - $ref: '../components/parameters.yaml#/components/parameters/PageParam'
+        - $ref: '../components/parameters.yaml#/components/parameters/LimitParam'
+      responses:
+        '200':
+          $ref: '../components/responses.yaml#/components/responses/SessionsResponse'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '../components/responses.yaml#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - Chat
+      summary: Create chat session
+      description: Create a new chat session for current user
+      operationId: createSession
+      security:
+        $ref: '../components/security.yaml#/components/securityRequirements/AuthenticatedUser'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/CreateSessionRequest'
+      responses:
+        '201':
+          $ref: '../components/responses.yaml#/components/responses/SessionResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequestError'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '../components/responses.yaml#/components/responses/ValidationError'
+        '500':
+          $ref: '../components/responses.yaml#/components/responses/InternalServerError'
+
+  /sessions/{sessionId}:
+    delete:
+      tags:
+        - Chat
+      summary: Delete chat session
+      description: Delete a chat session and all its messages
+      operationId: deleteSession
+      security:
+        $ref: '../components/security.yaml#/components/securityRequirements/AuthenticatedUser'
+      parameters:
+        - $ref: '../components/parameters.yaml#/components/parameters/SessionIdParam'
+      responses:
+        '204':
+          $ref: '../components/responses.yaml#/components/responses/NoContentResponse'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '../components/responses.yaml#/components/responses/ForbiddenError'
+        '404':
+          $ref: '../components/responses.yaml#/components/responses/NotFoundError'
+        '500':
+          $ref: '../components/responses.yaml#/components/responses/InternalServerError'
+
+  /sessions/{sessionId}/messages:
+    get:
+      tags:
+        - Chat
+      summary: Get chat messages
+      description: Retrieve all messages in a chat session
+      operationId: getMessages
+      security:
+        $ref: '../components/security.yaml#/components/securityRequirements/AuthenticatedUser'
+      parameters:
+        - $ref: '../components/parameters.yaml#/components/parameters/SessionIdParam'
+        - $ref: '../components/parameters.yaml#/components/parameters/PageParam'
+        - $ref: '../components/parameters.yaml#/components/parameters/LimitParam'
+      responses:
+        '200':
+          $ref: '../components/responses.yaml#/components/responses/MessagesResponse'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '../components/responses.yaml#/components/responses/ForbiddenError'
+        '404':
+          $ref: '../components/responses.yaml#/components/responses/NotFoundError'
+        '500':
+          $ref: '../components/responses.yaml#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - Chat
+      summary: Send message
+      description: Send a message to a chat session
+      operationId: sendMessage
+      security:
+        $ref: '../components/security.yaml#/components/securityRequirements/AuthenticatedUser'
+      parameters:
+        - $ref: '../components/parameters.yaml#/components/parameters/SessionIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/SendMessageRequest'
+      responses:
+        '201':
+          $ref: '../components/responses.yaml#/components/responses/MessageResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequestError'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '../components/responses.yaml#/components/responses/ForbiddenError'
+        '404':
+          $ref: '../components/responses.yaml#/components/responses/NotFoundError'
+        '422':
+          $ref: '../components/responses.yaml#/components/responses/ValidationError'
+        '500':
+          $ref: '../components/responses.yaml#/components/responses/InternalServerError'
+
+  /sessions/{sessionId}/messages/stream:
+    post:
+      tags:
+        - Chat
+      summary: Send message with streaming
+      description: Send a message to a chat session with streaming response
+      operationId: sendMessageStream
+      security:
+        $ref: '../components/security.yaml#/components/securityRequirements/AuthenticatedUser'
+      parameters:
+        - $ref: '../components/parameters.yaml#/components/parameters/SessionIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/SendMessageRequest'
+      responses:
+        '200':
+          $ref: '../components/responses.yaml#/components/responses/StreamResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequestError'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '../components/responses.yaml#/components/responses/ForbiddenError'
+        '404':
+          $ref: '../components/responses.yaml#/components/responses/NotFoundError'
+        '422':
+          $ref: '../components/responses.yaml#/components/responses/ValidationError'
+        '500':
+          $ref: '../components/responses.yaml#/components/responses/InternalServerError'

@@ -14,12 +14,12 @@ export interface GetDocumentsResponse {
   documents: Document[];
 }
 
-export interface MultipleUploadRequest {
+export interface UploadRequest {
   files: File[];
 }
 
-export interface MultipleUploadResponse {
-  uploadId: string;
+export interface UploadResponse {
+  uploadId?: string;
   documents: Document[];
 }
 

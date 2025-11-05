@@ -1,0 +1,84 @@
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticate user with email and password, return JWT tokens
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          $ref: '../components/responses.yaml#/components/responses/LoginResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequestError'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '../components/responses.yaml#/components/responses/ValidationError'
+        '500':
+          $ref: '../components/responses.yaml#/components/responses/InternalServerError'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      description: Refresh JWT access token using refresh token
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          $ref: '../components/responses.yaml#/components/responses/RefreshTokenResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequestError'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '../components/responses.yaml#/components/responses/ValidationError'
+        '500':
+          $ref: '../components/responses.yaml#/components/responses/InternalServerError'
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: User logout
+      description: Logout user and invalidate tokens
+      operationId: logout
+      security:
+        $ref: '../components/security.yaml#/components/securityRequirements/AuthenticatedUser'
+      responses:
+        '200':
+          $ref: '../components/responses.yaml#/components/responses/SuccessResponse'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '../components/responses.yaml#/components/responses/InternalServerError'
+
+  /auth/me:
+    get:
+      tags:
+        - Authentication
+      summary: Get current user
+      description: Get information about the currently authenticated user
+      operationId: getCurrentUser
+      security:
+        $ref: '../components/security.yaml#/components/securityRequirements/AuthenticatedUser'
+      responses:
+        '200':
+          $ref: '../components/responses.yaml#/components/responses/UserResponse'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '../components/responses.yaml#/components/responses/InternalServerError'

@@ -3,8 +3,8 @@ import {
   Document,
   GetDocumentsResponse,
   UploadProgressCallback,
-  MultipleUploadRequest,
-  MultipleUploadResponse,
+  UploadRequest,
+  UploadResponse,
   UploadStatusResponse,
   MultipleUploadProgressCallback
 } from '../types';
@@ -15,35 +15,30 @@ export const documentAPI = {
     return response.data;
   },
 
-  uploadDocument: async (
-    file: File,
-    onProgress?: UploadProgressCallback
-  ): Promise<Document> => {
+  uploadDocuments: async (
+    files: File[],
+    onProgress?: MultipleUploadProgressCallback | UploadProgressCallback
+  ): Promise<UploadResponse> => {
     const formData = new FormData();
-    formData.append('file', file);
-    const response = await apiClient.upload<Document>('/documents/upload', formData, {
-      onUploadProgress: (progressEvent) => {
-        if (onProgress && progressEvent.total) {
-          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          onProgress(progress);
-        }
-      },
+    files.forEach(file => {
+      formData.append('files', file);
     });
-    return response.data;
-  },
-
-  uploadMultipleDocuments: async (
-    formData: FormData,
-    onProgress?: MultipleUploadProgressCallback
-  ): Promise<MultipleUploadResponse> => {
-    const response = await apiClient.upload<MultipleUploadResponse>('/documents/upload-multiple', formData, {
+    
+    const response = await apiClient.upload<UploadResponse>('/documents/upload', formData, {
       onUploadProgress: (progressEvent) => {
         if (onProgress && progressEvent.total) {
-          // For multiple files, we'd need to track individual file progress
-          // This is a simplified implementation
           const overallProgress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          // In a real implementation, you'd track each file separately
-          onProgress([{ fileId: 'multiple', progress: overallProgress }]);
+          
+          // Handle single file progress callback
+          if (files.length === 1 && typeof onProgress === 'function') {
+            (onProgress as UploadProgressCallback)(overallProgress);
+          }
+          // Handle multiple files progress callback
+          else if (files.length > 1 && typeof onProgress === 'function') {
+            // For multiple files, we'd need to track individual file progress
+            // This is a simplified implementation
+            (onProgress as MultipleUploadProgressCallback)([{ fileId: 'multiple', progress: overallProgress }]);
+          }
         }
       },
     });

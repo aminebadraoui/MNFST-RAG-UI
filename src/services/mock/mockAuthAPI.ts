@@ -24,17 +24,22 @@ export const mockAuthAPI = {
     
     // Simulate validation for different roles using environment variables
     let role: UserRole;
+    let tenantId: string | undefined;
+    
     if (email === credentials.superadmin.email && password === credentials.superadmin.password) {
       role = 'superadmin';
+      tenantId = undefined; // Superadmin doesn't belong to a tenant
     } else if (email === credentials.tenant_admin.email && password === credentials.tenant_admin.password) {
       role = 'tenant_admin';
+      tenantId = 'tenant_1'; // Assign tenant admin to tenant_1
     } else if (email === credentials.user.email && password === credentials.user.password) {
       role = 'user';
+      tenantId = 'tenant_1'; // Assign regular user to tenant_1
     } else {
       throw new Error('Invalid credentials');
     }
 
-    const user = MockDataGenerator.generateUser(role);
+    const user = MockDataGenerator.generateUser(role, tenantId);
     return mockApiClient.post({
       user,
       tokens: {

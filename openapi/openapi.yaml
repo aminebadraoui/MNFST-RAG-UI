@@ -1,0 +1,88 @@
+openapi: 3.0.3
+info:
+  title: RAG Chat API
+  description: Multi-tenant RAG Chat application API with role-based access control
+  version: 1.0.0
+  contact:
+    name: RAG Chat Team
+    email: support@ragchat.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3001/api/v1
+    description: Development server (Node.js/Express)
+  - url: http://localhost:8000/api/v1
+    description: Development server (FastAPI/Python)
+  - url: https://yourdomain.com/api/v1
+    description: Production server
+
+tags:
+  - name: Authentication
+    description: Authentication and token management
+  - name: Tenants
+    description: Tenant management (superadmin only)
+  - name: Users
+    description: User management (tenant admin)
+  - name: Documents
+    description: Document management and RAG processing
+  - name: Social
+    description: Social media link management
+  - name: Chat
+    description: Chat functionality and messaging
+
+paths:
+  /auth/login:
+    $ref: './paths/auth.yaml#/paths/~1auth~1login'
+  /auth/refresh:
+    $ref: './paths/auth.yaml#/paths/~1auth~1refresh'
+  /auth/logout:
+    $ref: './paths/auth.yaml#/paths/~1auth~1logout'
+  /auth/me:
+    $ref: './paths/auth.yaml#/paths/~1auth~1me'
+  
+  /tenants:
+    $ref: './paths/tenants.yaml#/paths/~1tenants'
+  /tenants/{tenantId}:
+    $ref: './paths/tenants.yaml#/paths/~1tenants~1{tenantId}'
+  
+  /users:
+    $ref: './paths/users.yaml#/paths/~1users'
+  /users/{userId}:
+    $ref: './paths/users.yaml#/paths/~1users~1{userId}'
+  
+  /documents:
+    $ref: './paths/documents.yaml#/paths/~1documents'
+  /documents/upload:
+    $ref: './paths/documents.yaml#/paths/~1documents~1upload'
+  /documents/upload-multiple:
+    $ref: './paths/documents.yaml#/paths/~1documents~1upload-multiple'
+  /documents/upload/{uploadId}/status:
+    $ref: './paths/documents.yaml#/paths/~1documents~1upload~1{uploadId}~1status'
+  /documents/{documentId}:
+    $ref: './paths/documents.yaml#/paths/~1documents~1{documentId}'
+  
+  /social-links:
+    $ref: './paths/social.yaml#/paths/~1social-links'
+  /social-links/{linkId}:
+    $ref: './paths/social.yaml#/paths/~1social-links~1{linkId}'
+  
+  /sessions:
+    $ref: './paths/chat.yaml#/paths/~1sessions'
+  /sessions/{sessionId}:
+    $ref: './paths/chat.yaml#/paths/~1sessions~1{sessionId}'
+  /sessions/{sessionId}/messages:
+    $ref: './paths/chat.yaml#/paths/~1sessions~1{sessionId}~1messages'
+  /sessions/{sessionId}/messages/stream:
+    $ref: './paths/chat.yaml#/paths/~1sessions~1{sessionId}~1messages~1stream'
+
+components:
+  schemas:
+    $ref: './components/schemas.yaml#/components/schemas'
+  parameters:
+    $ref: './components/parameters.yaml#/components/parameters'
+  responses:
+    $ref: './components/responses.yaml#/components/responses'
+  securitySchemes:
+    $ref: './components/security.yaml#/components/securitySchemes'

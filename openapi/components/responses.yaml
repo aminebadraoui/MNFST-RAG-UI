@@ -1,0 +1,279 @@
+components:
+  responses:
+    # Success Responses
+    SuccessResponse:
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: './schemas.yaml#/components/schemas/ApiResponse'
+
+    CreatedResponse:
+      description: Resource created successfully
+      content:
+        application/json:
+          schema:
+            $ref: './schemas.yaml#/components/schemas/ApiResponse'
+
+    NoContentResponse:
+      description: Operation completed successfully with no content returned
+
+    # Data Responses
+    UserResponse:
+      description: User data
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: './schemas.yaml#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: './schemas.yaml#/components/schemas/User'
+
+    UsersResponse:
+      description: List of users
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: './schemas.yaml#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: './schemas.yaml#/components/schemas/User'
+
+    TenantResponse:
+      description: Tenant data
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: './schemas.yaml#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: './schemas.yaml#/components/schemas/Tenant'
+
+    TenantsResponse:
+      description: List of tenants
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: './schemas.yaml#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: './schemas.yaml#/components/schemas/Tenant'
+
+    DocumentResponse:
+      description: Document data
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: './schemas.yaml#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: './schemas.yaml#/components/schemas/Document'
+
+    DocumentsResponse:
+      description: List of documents
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: './schemas.yaml#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: './schemas.yaml#/components/schemas/Document'
+
+    SocialLinkResponse:
+      description: Social link data
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: './schemas.yaml#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: './schemas.yaml#/components/schemas/SocialLink'
+
+    SocialLinksResponse:
+      description: List of social links
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: './schemas.yaml#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      links:
+                        type: array
+                        items:
+                          $ref: './schemas.yaml#/components/schemas/SocialLink'
+
+    SessionResponse:
+      description: Chat session data
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: './schemas.yaml#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: './schemas.yaml#/components/schemas/Session'
+
+    SessionsResponse:
+      description: List of chat sessions
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: './schemas.yaml#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: './schemas.yaml#/components/schemas/Session'
+
+    MessageResponse:
+      description: Chat message data
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: './schemas.yaml#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: './schemas.yaml#/components/schemas/Message'
+
+    MessagesResponse:
+      description: List of chat messages
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: './schemas.yaml#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: './schemas.yaml#/components/schemas/Message'
+
+    LoginResponse:
+      description: Login successful
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: './schemas.yaml#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: './schemas.yaml#/components/schemas/LoginResponse'
+
+    RefreshTokenResponse:
+      description: Token refreshed successfully
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: './schemas.yaml#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: './schemas.yaml#/components/schemas/RefreshTokenResponse'
+
+    UploadStatusResponse:
+      description: Upload status information
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: './schemas.yaml#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: './schemas.yaml#/components/schemas/UploadStatusResponse'
+
+    MultipleUploadResponse:
+      description: Multiple file upload response
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: './schemas.yaml#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: './schemas.yaml#/components/schemas/MultipleUploadResponse'
+
+    # Error Responses
+    BadRequestError:
+      description: Bad request - invalid input data
+      content:
+        application/json:
+          schema:
+            $ref: './schemas.yaml#/components/schemas/ApiError'
+
+    UnauthorizedError:
+      description: Unauthorized - authentication required or failed
+      content:
+        application/json:
+          schema:
+            $ref: './schemas.yaml#/components/schemas/ApiError'
+
+    ForbiddenError:
+      description: Forbidden - insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: './schemas.yaml#/components/schemas/ApiError'
+
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: './schemas.yaml#/components/schemas/ApiError'
+
+    ValidationError:
+      description: Validation error - input data failed validation
+      content:
+        application/json:
+          schema:
+            $ref: './schemas.yaml#/components/schemas/ApiError'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: './schemas.yaml#/components/schemas/ApiError'
+
+    # Streaming Response
+    StreamResponse:
+      description: Server-Sent Events stream for chat responses
+      content:
+        text/event-stream:
+          schema:
+            type: string
+            description: SSE formatted stream of chat response chunks

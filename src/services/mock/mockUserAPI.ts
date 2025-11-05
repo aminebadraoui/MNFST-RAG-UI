@@ -12,6 +12,16 @@ let mockUsers: User[] = [
   MockDataGenerator.generateUser('user', 'tenant_2'),
 ];
 
+// Helper function to get current user from localStorage
+const getCurrentUser = (): User | null => {
+  try {
+    const userData = localStorage.getItem('userData');
+    return userData ? JSON.parse(userData) : null;
+  } catch {
+    return null;
+  }
+};
+
 export const mockUserAPI = {
   createUser: async (data: CreateUserRequest): Promise<CreateUserResponse> => {
     // Check if email already exists
@@ -19,12 +29,35 @@ export const mockUserAPI = {
       throw new Error('User with this email already exists');
     }
 
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+      throw new Error('No authenticated user found');
+    }
+
+    // Only superadmin and tenant_admin can create users
+    if (currentUser.role !== 'superadmin' && currentUser.role !== 'tenant_admin') {
+      throw new Error('Insufficient permissions to create users');
+    }
+
+    // Determine tenant ID based on current user
+    let tenantId: string | undefined;
+    if (currentUser.role === 'tenant_admin') {
+      tenantId = currentUser.tenantId;
+      // Tenant admins can only create users under their tenant
+      if (data.role === 'superadmin' || (data.role === 'tenant_admin' && data.tenantId !== tenantId)) {
+        throw new Error('Tenant admins can only create regular users under their tenant');
+      }
+    } else if (currentUser.role === 'superadmin') {
+      // Superadmin can specify tenant or create system users
+      tenantId = data.tenantId;
+    }
+
     const newUser: User = {
       id: MockDataGenerator.generateId(),
       email: data.email,
       name: data.name,
       role: data.role,
-      tenantId: 'current_tenant_id', // In real app, this would come from auth context
+      tenantId,
       createdAt: new Date().toISOString(),
     };
 
@@ -36,15 +69,38 @@ export const mockUserAPI = {
       email: addedUser.email,
       name: addedUser.name,
       role: addedUser.role,
-      tenantId: addedUser.tenantId || 'current_tenant_id',
+      tenantId: addedUser.tenantId || 'system',
       createdAt: addedUser.createdAt || new Date().toISOString(),
     };
   },
 
   getUsers: async (): Promise<{ data: User[] }> => {
-    // In real app, this would filter by tenant_id for tenant admins
-    // and return all users for superadmin
-    return mockApiClient.get({ data: mockUsers });
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+      throw new Error('No authenticated user found');
+    }
+
+    // Only superadmin and tenant_admin can view users
+    if (currentUser.role !== 'superadmin' && currentUser.role !== 'tenant_admin') {
+      throw new Error('Insufficient permissions to view users');
+    }
+
+    let filteredUsers: User[];
+    
+    if (currentUser.role === 'superadmin') {
+      // Superadmin can see all users except themselves
+      filteredUsers = mockUsers.filter(user => user.email !== currentUser.email);
+    } else if (currentUser.role === 'tenant_admin') {
+      // Tenant admin can only see users from their tenant, excluding themselves
+      filteredUsers = mockUsers.filter(user =>
+        user.email !== currentUser.email && user.tenantId === currentUser.tenantId
+      );
+    } else {
+      // Regular users shouldn't be able to access this endpoint
+      filteredUsers = [];
+    }
+
+    return mockApiClient.get({ data: filteredUsers });
   },
 
   updateUser: async (userId: string, data: Partial<User>): Promise<{ data: User }> => {
@@ -70,9 +126,8 @@ export const mockUserAPI = {
   },
 
   getCurrentUser: async (): Promise<{ data: User }> => {
-    // In real app, this would get the current user from token
-    // For mock, we'll return the first user
-    const currentUser = mockUsers[0];
+    // Get the current user from localStorage (same as the helper function)
+    const currentUser = getCurrentUser();
     if (!currentUser) {
       throw new Error('No current user found');
     }

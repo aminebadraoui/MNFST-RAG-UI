@@ -72,6 +72,7 @@ export interface CreateUserRequest {
   name: string;
   password: string;
   role: UserRole;
+  tenantId?: string; // Optional, only used by superadmin
 }
 
 export interface CreateUserResponse {

@@ -1,9 +1,9 @@
-import { 
-  Document, 
-  GetDocumentsResponse, 
+import {
+  Document,
+  GetDocumentsResponse,
   UploadProgressCallback,
-  MultipleUploadRequest,
-  MultipleUploadResponse,
+  UploadRequest,
+  UploadResponse,
   UploadStatusResponse,
   MultipleUploadProgressCallback,
   DocumentUploadStatus
@@ -20,48 +20,12 @@ export const mockDocumentAPI = {
     return mockApiClient.get({ documents: mockDocuments });
   },
 
-  uploadDocument: async (
-    file: File, 
-    onProgress?: UploadProgressCallback
-  ): Promise<Document> => {
-    const newDocument: Document = {
-      id: MockDataGenerator.generateId(),
-      filename: `${MockDataGenerator.generateId()}_${file.name}`,
-      originalName: file.name,
-      size: file.size,
-      mimeType: file.type,
-      status: 'uploaded',
-      uploadedAt: new Date().toISOString()
-    };
-
-    const uploadedDoc = await mockApiClient.upload(newDocument, onProgress);
-    mockDocuments.unshift(uploadedDoc);
-    
-    // Simulate processing after upload
-    setTimeout(() => {
-      const doc = mockDocuments.find(d => d.id === uploadedDoc.id);
-      if (doc) {
-        doc.status = 'processing';
-      }
-    }, 2000);
-
-    setTimeout(() => {
-      const doc = mockDocuments.find(d => d.id === uploadedDoc.id);
-      if (doc) {
-        doc.status = 'processed';
-        doc.processedAt = new Date().toISOString();
-      }
-    }, 5000);
-
-    return uploadedDoc;
-  },
-
-  uploadMultipleDocuments: async (
+  uploadDocuments: async (
     files: File[],
-    onProgress?: MultipleUploadProgressCallback
-  ): Promise<MultipleUploadResponse> => {
-    const uploadId = MockDataGenerator.generateId();
+    onProgress?: MultipleUploadProgressCallback | UploadProgressCallback
+  ): Promise<UploadResponse> => {
     const documents: Document[] = [];
+    let uploadId: string | undefined;
 
     // Create document objects for all files
     files.forEach(file => {
@@ -76,66 +40,90 @@ export const mockDocumentAPI = {
       });
     });
 
+    // Generate uploadId only for multiple files
+    if (files.length > 1) {
+      uploadId = MockDataGenerator.generateId();
+    }
+
     const response = await mockApiClient.uploadMultiple(
       { uploadId, documents },
       files.length,
-      onProgress
+      onProgress as MultipleUploadProgressCallback
     );
 
     // Add to mock documents
     mockDocuments.unshift(...documents);
 
-    // Create upload status tracking
-    mockUploadStatuses[uploadId] = {
-      uploadId,
-      status: 'processing',
-      documents: documents.map(doc => ({
-        id: doc.id,
-        filename: doc.filename,
-        status: 'uploaded',
-        progress: 100
-      }))
-    };
+    // Create upload status tracking only for multiple files
+    if (uploadId) {
+      mockUploadStatuses[uploadId] = {
+        uploadId,
+        status: 'processing',
+        documents: documents.map(doc => ({
+          id: doc.id,
+          filename: doc.filename,
+          status: 'uploaded',
+          progress: 100
+        }))
+      };
 
-    // Simulate processing
-    setTimeout(() => {
-      const status = mockUploadStatuses[uploadId];
-      if (status) {
-        status.documents.forEach((doc, index) => {
-          setTimeout(() => {
-            doc.status = 'processing';
-            doc.progress = 50;
-          }, index * 1000);
-        });
-      }
-    }, 2000);
+      // Simulate processing for multiple files
+      setTimeout(() => {
+        const status = mockUploadStatuses[uploadId!];
+        if (status) {
+          status.documents.forEach((doc, index) => {
+            setTimeout(() => {
+              doc.status = 'processing';
+              doc.progress = 50;
+            }, index * 1000);
+          });
+        }
+      }, 2000);
 
-    setTimeout(() => {
-      const status = mockUploadStatuses[uploadId];
-      if (status) {
-        status.documents.forEach((doc, index) => {
+      setTimeout(() => {
+        const status = mockUploadStatuses[uploadId!];
+        if (status) {
+          status.documents.forEach((doc, index) => {
+            setTimeout(() => {
+              doc.status = 'processed';
+              doc.progress = 100;
+              doc.processedAt = new Date().toISOString();
+              
+              // Update the main document as well
+              const mainDoc = mockDocuments.find(d => d.id === doc.id);
+              if (mainDoc) {
+                mainDoc.status = 'processed';
+                mainDoc.processedAt = doc.processedAt;
+              }
+            }, index * 500);
+          });
+          
+          // Check if all are processed
           setTimeout(() => {
-            doc.status = 'processed';
-            doc.progress = 100;
-            doc.processedAt = new Date().toISOString();
-            
-            // Update the main document as well
-            const mainDoc = mockDocuments.find(d => d.id === doc.id);
-            if (mainDoc) {
-              mainDoc.status = 'processed';
-              mainDoc.processedAt = doc.processedAt;
+            if (status.documents.every(doc => doc.status === 'processed')) {
+              status.status = 'completed';
             }
-          }, index * 500);
-        });
-        
-        // Check if all are processed
-        setTimeout(() => {
-          if (status.documents.every(doc => doc.status === 'processed')) {
-            status.status = 'completed';
-          }
-        }, status.documents.length * 500);
-      }
-    }, 5000);
+          }, status.documents.length * 500);
+        }
+      }, 5000);
+    } else {
+      // Simulate processing for single file
+      const doc = documents[0];
+      setTimeout(() => {
+        const mainDoc = mockDocuments.find(d => d.id === doc.id);
+        if (mainDoc) {
+          mainDoc.status = 'processing';
+        }
+      }, 2000);
+
+      setTimeout(() => {
+        const mainDoc = mockDocuments.find(d => d.id === doc.id);
+        if (mainDoc) {
+          mainDoc.status = 'processed';
+          mainDoc.processedAt = new Date().toISOString();
+        }
+      }, 5000);
+    }
 
     return response;
   },
