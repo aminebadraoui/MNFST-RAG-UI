@@ -19,7 +19,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const isChatPage = location.pathname === '/chat';
 
   return (
-    <div className={`min-h-screen bg-light-bg-primary dark:bg-dark-bg-primary ${theme === 'dark' ? 'dark' : ''}`}>
+    <div className={`min-h-screen bg-light-bg-primary dark:bg-dark-bg-primary ${theme === 'dark' ? 'dark' : ''} flex`}>
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
@@ -36,8 +36,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         setSidebarOpen={setSidebarOpen}
       />
 
-      {/* Main content - with left padding for fixed sidebar on desktop */}
-      <div className="md:pl-64 flex min-h-screen">
+      {/* Main content - takes remaining space */}
+      <div className="flex-1 flex min-h-screen">
         <MainContent fullHeight={isChatPage}>
           {children}
         </MainContent>

@@ -9,25 +9,32 @@ import {
   StreamChunk
 } from '../types';
 
+// Define DataResponse interface for type safety
+interface DataResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+}
+
 export const chatAPI = {
-  getSessions: async (): Promise<GetSessionsResponse> => {
-    const response = await apiClient.get<GetSessionsResponse>('/sessions');
-    return response.data;
+  getSessions: async (): Promise<Session[]> => {
+    const response = await apiClient.get<DataResponse<Session[]>>('/sessions');
+    return response.data.data;
   },
 
   createSession: async (title: string): Promise<Session> => {
-    const response = await apiClient.post<Session>('/sessions', { title });
-    return response.data;
+    const response = await apiClient.post<DataResponse<Session>>('/sessions', { title });
+    return response.data.data;
   },
 
-  getMessages: async (sessionId: string): Promise<GetMessagesResponse> => {
-    const response = await apiClient.get<GetMessagesResponse>(`/sessions/${sessionId}/messages`);
-    return response.data;
+  getMessages: async (sessionId: string): Promise<Message[]> => {
+    const response = await apiClient.get<DataResponse<Message[]>>(`/sessions/${sessionId}/messages`);
+    return response.data.data;
   },
 
   sendMessage: async (sessionId: string, message: SendMessageRequest): Promise<Message> => {
-    const response = await apiClient.post<Message>(`/sessions/${sessionId}/messages`, message);
-    return response.data;
+    const response = await apiClient.post<DataResponse<Message>>(`/sessions/${sessionId}/messages`, message);
+    return response.data.data;
   },
 
   // Streaming message method

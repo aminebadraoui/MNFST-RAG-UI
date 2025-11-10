@@ -11,26 +11,33 @@ import {
   RegisterUploadRequest
 } from '../types';
 
+// Define DataResponse interface for type safety
+interface DataResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+}
+
 export const documentAPI = {
-  getDocuments: async (): Promise<GetDocumentsResponse> => {
-    const response = await apiClient.get<GetDocumentsResponse>('/documents');
-    return response.data;
+  getDocuments: async (): Promise<Document[]> => {
+    const response = await apiClient.get<DataResponse<Document[]>>('/documents');
+    return response.data.data;
   },
 
   // NEW: Get presigned URL from backend
   getPresignedUrl: async (file: File): Promise<PresignedUrlResponse> => {
-    const response = await apiClient.post<PresignedUrlResponse>('/documents/presigned-url', {
+    const response = await apiClient.post<DataResponse<PresignedUrlResponse>>('/documents/presigned-url', {
       file_name: file.name,
       mime_type: file.type,
       file_size: file.size
     });
-    return response.data;
+    return response.data.data;
   },
 
   // NEW: Register uploaded document with backend
   registerUpload: async (uploadData: RegisterUploadRequest): Promise<Document> => {
-    const response = await apiClient.post<Document>('/documents/register-upload', uploadData);
-    return response.data;
+    const response = await apiClient.post<DataResponse<Document>>('/documents/register-upload', uploadData);
+    return response.data.data;
   },
 
   // ENHANCED: Upload with R2 support
@@ -69,8 +76,8 @@ export const documentAPI = {
   },
 
   getUploadStatus: async (uploadId: string): Promise<UploadStatusResponse> => {
-    const response = await apiClient.get<UploadStatusResponse>(`/documents/upload/${uploadId}/status`);
-    return response.data;
+    const response = await apiClient.get<DataResponse<UploadStatusResponse>>(`/documents/upload/${uploadId}/status`);
+    return response.data.data;
   },
 
   deleteDocument: async (documentId: string): Promise<void> => {

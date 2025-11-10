@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { tenantAPI } from '../services';
 import { Tenant } from '../types';
+import { BuildingOfficeIcon } from '@heroicons/react/24/outline';
 
 const TenantsPage: React.FC = () => {
   const { user } = useAuth();
@@ -14,10 +15,11 @@ const TenantsPage: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await tenantAPI.getTenants();
-        setTenants(response.data);
+        const tenants = await tenantAPI.getTenants();
+        setTenants(tenants);
       } catch (err: any) {
         setError(err.message || 'Failed to load tenants');
+        setTenants([]); // Ensure tenants is always an array
       } finally {
         setLoading(false);
       }
@@ -66,7 +68,7 @@ const TenantsPage: React.FC = () => {
             </div>
           )}
 
-          {!loading && !error && (
+          {!loading && !error && tenants.length > 0 && (
             <div className="bg-light-bg-secondary dark:bg-dark-bg-secondary shadow overflow-hidden sm:rounded-md">
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-light-border-primary dark:divide-dark-border-primary">
@@ -133,8 +135,20 @@ const TenantsPage: React.FC = () => {
           )}
 
           {!loading && !error && tenants.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-light-text-tertiary dark:text-dark-text-tertiary">No tenants found.</p>
+            <div className="bg-light-bg-secondary dark:bg-dark-bg-secondary shadow overflow-hidden sm:rounded-md">
+              <div className="text-center py-12">
+                <div className="flex justify-center mb-4">
+                  <BuildingOfficeIcon className="h-12 w-12 text-light-text-quaternary dark:text-dark-text-quaternary" />
+                </div>
+                <h3 className="text-lg font-medium text-light-text-primary dark:text-dark-text-primary mb-2">No tenants found</h3>
+                <p className="text-light-text-tertiary dark:text-dark-text-tertiary mb-4">Get started by creating your first tenant.</p>
+                <button
+                  className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                  onClick={() => {/* TODO: Open create tenant modal */}}
+                >
+                  Create Tenant
+                </button>
+              </div>
             </div>
           )}
         </div>

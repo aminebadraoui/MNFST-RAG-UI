@@ -22,16 +22,18 @@ interface APIs {
 }
 
 export const createAPIs = (): APIs => {
+  // Check if mock is globally enabled
   if (mockConfig.enabled) {
     return {
-      authAPI: mockAuthAPI,
-      chatAPI: mockChatAPI,
-      documentAPI: mockDocumentAPI,
-      socialAPI: mockSocialAPI,
-      tenantAPI: mockTenantAPI,
-      userAPI: mockUserAPI
+      authAPI: mockConfig.services.auth ? mockAuthAPI : realAuthAPI,
+      chatAPI: mockConfig.services.chat ? mockChatAPI : realChatAPI,
+      documentAPI: mockConfig.services.document ? mockDocumentAPI : realDocumentAPI,
+      socialAPI: mockConfig.services.social ? mockSocialAPI : realSocialAPI,
+      tenantAPI: mockConfig.services.tenant ? mockTenantAPI : realTenantAPI,
+      userAPI: mockConfig.services.user ? mockUserAPI : realUserAPI
     };
   } else {
+    // If mock is globally disabled, use all real APIs
     return {
       authAPI: realAuthAPI,
       chatAPI: realChatAPI,

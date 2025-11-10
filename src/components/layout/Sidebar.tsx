@@ -122,9 +122,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Sidebar - Fixed on desktop, overlay on mobile */}
       <div className={`
-        fixed top-0 bottom-0 left-0 z-50 w-64 bg-light-bg-primary dark:bg-dark-bg-secondary shadow-lg transform transition-transform duration-300 ease-in-out flex flex-col
-        md:translate-x-0
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        fixed top-0 bottom-0 left-0 z-50 w-64 h-screen bg-light-bg-primary dark:bg-dark-bg-secondary shadow-lg transform transition-transform duration-300 ease-in-out flex flex-col
+        md:translate-x-0 md:relative md:z-auto md:h-screen
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         <div className="flex items-center justify-between h-16 px-4 border-b border-light-border-primary dark:border-dark-border-primary">
           <h1 className="text-lg font-semibold text-light-text-primary dark:text-dark-text-primary">MNFST RAG</h1>

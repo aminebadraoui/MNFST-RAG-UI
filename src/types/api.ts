@@ -43,6 +43,14 @@ export interface PaginatedResponse<T> {
 
 export interface MockConfig {
   enabled: boolean;
+  services: {
+    auth: boolean;
+    chat: boolean;
+    document: boolean;
+    social: boolean;
+    tenant: boolean;
+    user: boolean;
+  };
   delay: {
     min: number;
     max: number;
