@@ -29,19 +29,19 @@ export interface LoginRequest {
 export interface LoginResponse {
   user: User;
   tokens: {
-    accessToken: string;
-    refreshToken: string;
-    expiresIn: number;
+    access_token: string;
+    refresh_token: string;
+    expires_in: number;
   };
 }
 
 export interface RefreshTokenRequest {
-  refreshToken: string;
+  refresh_token: string;
 }
 
 export interface RefreshTokenResponse {
-  accessToken: string;
-  expiresIn: number;
+  access_token: string;
+  expires_in: number;
 }
 
 export interface CreateTenantRequest {

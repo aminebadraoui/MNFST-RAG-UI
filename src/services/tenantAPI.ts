@@ -22,6 +22,12 @@ export const tenantAPI = {
   },
 
   // Superadmin only
+  getTenant: async (tenantId: string): Promise<Tenant> => {
+    const response = await apiClient.get<DataResponse<Tenant>>(`/tenants/${tenantId}`);
+    return response.data.data;
+  },
+
+  // Superadmin only
   updateTenant: async (tenantId: string, data: Partial<Tenant>): Promise<Tenant> => {
     const response = await apiClient.put<DataResponse<Tenant>>(`/tenants/${tenantId}`, data);
     return response.data.data;

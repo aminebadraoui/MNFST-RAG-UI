@@ -121,17 +121,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Try API authentication
       const response = await authAPI.login(email, password);
       
+      console.log('Login response:', response);
+      console.log('Access token:', response.tokens.access_token);
+      console.log('Refresh token:', response.tokens.refresh_token);
+      
       // Store tokens in localStorage
-      localStorage.setItem('accessToken', response.tokens.accessToken);
-      localStorage.setItem('refreshToken', response.tokens.refreshToken);
+      localStorage.setItem('accessToken', response.tokens.access_token);
+      localStorage.setItem('refreshToken', response.tokens.refresh_token);
       localStorage.setItem('userData', JSON.stringify(response.user));
+      
+      // Verify tokens are stored
+      console.log('Stored access token:', localStorage.getItem('accessToken'));
+      console.log('Stored refresh token:', localStorage.getItem('refreshToken'));
       
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: {
           user: response.user,
-          accessToken: response.tokens.accessToken,
-          refreshToken: response.tokens.refreshToken,
+          accessToken: response.tokens.access_token,
+          refreshToken: response.tokens.refresh_token,
         },
       });
     } catch (error: any) {
@@ -154,13 +162,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const refreshAccessToken = async () => {
     try {
       const refreshToken = localStorage.getItem('refreshToken');
-      if (!refreshToken) {
+      if (!refreshToken || refreshToken === 'undefined') {
         throw new Error('No refresh token available');
       }
 
       const response = await authAPI.refreshToken(refreshToken);
-      localStorage.setItem('accessToken', response.accessToken);
-      dispatch({ type: 'REFRESH_TOKEN', payload: response.accessToken });
+      localStorage.setItem('accessToken', response.access_token);
+      dispatch({ type: 'REFRESH_TOKEN', payload: response.access_token });
     } catch (error) {
       // If refresh fails, logout the user
       logout();

@@ -52,11 +52,11 @@ export const mockTenantAPI = {
     };
   },
 
-  getTenants: async (): Promise<{ data: Tenant[] }> => {
-    return mockApiClient.get({ data: mockTenants });
+  getTenants: async (): Promise<Tenant[]> => {
+    return mockTenants;
   },
 
-  updateTenant: async (tenantId: string, data: Partial<Tenant>): Promise<{ data: Tenant }> => {
+  updateTenant: async (tenantId: string, data: Partial<Tenant>): Promise<Tenant> => {
     const index = mockTenants.findIndex(t => t.id === tenantId);
     if (index === -1) {
       throw new Error('Tenant not found');
@@ -65,7 +65,7 @@ export const mockTenantAPI = {
     const updatedTenant = { ...mockTenants[index], ...data, updatedAt: new Date().toISOString() };
     mockTenants[index] = updatedTenant;
 
-    return mockApiClient.put({ data: updatedTenant });
+    return updatedTenant;
   },
 
   deleteTenant: async (tenantId: string): Promise<void> => {

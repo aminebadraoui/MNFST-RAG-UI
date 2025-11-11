@@ -22,8 +22,13 @@ class APIClient {
     this.client.interceptors.request.use(
       (config) => {
         const token = localStorage.getItem('accessToken');
+        console.log('Request interceptor - token:', token);
+        console.log('Request interceptor - URL:', config.url);
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
+          console.log('Request interceptor - Authorization header set');
+        } else {
+          console.log('Request interceptor - No token found');
         }
         return config;
       },
@@ -41,19 +46,36 @@ class APIClient {
 
           try {
             const refreshToken = localStorage.getItem('refreshToken');
-            if (refreshToken) {
+            if (refreshToken && refreshToken !== 'undefined') {
+              console.log('Attempting to refresh token');
+              // Use a plain axios call without auth headers for refresh
               const response = await axios.post(`${this.baseURL}/auth/refresh`, {
-                refreshToken,
+                refresh_token: refreshToken,
+              }, {
+                headers: {
+                  'Content-Type': 'application/json',
+                },
               });
 
-              const { accessToken } = response.data;
-              localStorage.setItem('accessToken', accessToken);
+              console.log('Refresh response:', response.data);
 
-              // Retry the original request with new token
-              originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-              return this.client(originalRequest);
+              // Handle the nested response structure from the backend
+              // The backend returns: { data: { data: { access_token, expires_in }, message } }
+              const responseData = response.data;
+              if (responseData && responseData.data && responseData.data.access_token) {
+                const { access_token } = responseData.data;
+                localStorage.setItem('accessToken', access_token);
+
+                // Retry the original request with new token
+                originalRequest.headers.Authorization = `Bearer ${access_token}`;
+                return this.client(originalRequest);
+              } else {
+                console.error('Invalid response format from refresh endpoint:', responseData);
+                throw new Error('Invalid response format from refresh endpoint');
+              }
             }
           } catch (refreshError) {
+            console.error('Token refresh failed:', refreshError);
             // Refresh failed, logout user
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
