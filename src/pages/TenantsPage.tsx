@@ -1,32 +1,107 @@
-import React, { useState, useEffect } from 'react';
+import * as React from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { tenantAPI } from '../services';
-import { Tenant } from '../types';
+import { Tenant, CreateTenantResponse } from '../types';
 import { BuildingOfficeIcon } from '@heroicons/react/24/outline';
+import { CreateTenantModal, EditTenantModal, DeleteConfirmationModal } from '../components/ui';
 
 const TenantsPage: React.FC = () => {
   const { user } = useAuth();
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const loadTenants = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const tenants = await tenantAPI.getTenants();
+      setTenants(tenants);
+    } catch (err: any) {
+      setError(err.message || 'Failed to load tenants');
+      setTenants([]); // Ensure tenants is always an array
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadTenants = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const tenants = await tenantAPI.getTenants();
-        setTenants(tenants);
-      } catch (err: any) {
-        setError(err.message || 'Failed to load tenants');
-        setTenants([]); // Ensure tenants is always an array
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadTenants();
   }, []);
+
+  const handleCreateTenant = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const handleTenantCreated = (tenant: CreateTenantResponse) => {
+    // Refresh the tenants list to include the new tenant
+    loadTenants();
+  };
+
+  const handleCloseModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
+  const handleEditTenant = (tenant: Tenant) => {
+    setSelectedTenant(tenant);
+    setIsEditModalOpen(true);
+  };
+
+  const handleDeleteTenant = (tenant: Tenant) => {
+    setSelectedTenant(tenant);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleTenantUpdated = (updatedTenant: Tenant) => {
+    // Update the tenant in the list
+    setTenants(prevTenants =>
+      prevTenants.map(tenant =>
+        tenant.id === updatedTenant.id ? updatedTenant : tenant
+      )
+    );
+    setIsEditModalOpen(false);
+    setSelectedTenant(null);
+  };
+
+  const handleCloseEditModal = () => {
+    if (!isDeleting) {
+      setIsEditModalOpen(false);
+      setSelectedTenant(null);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!selectedTenant) return;
+    
+    setIsDeleting(true);
+    try {
+      await tenantAPI.deleteTenant(selectedTenant.id);
+      // Remove the tenant from the list
+      setTenants(prevTenants =>
+        prevTenants.filter(tenant => tenant.id !== selectedTenant.id)
+      );
+      setIsDeleteModalOpen(false);
+      setSelectedTenant(null);
+    } catch (error: any) {
+      console.error('Error deleting tenant:', error);
+      setError(error.message || 'Failed to delete tenant');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCloseDeleteModal = () => {
+    if (!isDeleting) {
+      setIsDeleteModalOpen(false);
+      setSelectedTenant(null);
+    }
+  };
 
   if (user?.role !== 'superadmin') {
     return (
@@ -49,7 +124,7 @@ const TenantsPage: React.FC = () => {
             <h1 className="text-2xl font-semibold text-light-text-primary dark:text-dark-text-primary">Tenant Management</h1>
             <button
               className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-              onClick={() => {/* TODO: Open create tenant modal */}}
+              onClick={handleCreateTenant}
             >
               Create Tenant
             </button>
@@ -81,6 +156,9 @@ const TenantsPage: React.FC = () => {
                         Slug
                       </th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-light-text-quaternary dark:text-dark-text-quaternary uppercase tracking-wider">
+                        Admin Email
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-light-text-quaternary dark:text-dark-text-quaternary uppercase tracking-wider">
                         Users
                       </th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-light-text-quaternary dark:text-dark-text-quaternary uppercase tracking-wider">
@@ -104,6 +182,9 @@ const TenantsPage: React.FC = () => {
                           {tenant.slug}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-light-text-tertiary dark:text-dark-text-tertiary">
+                          {tenant.adminUser?.email || 'N/A'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-light-text-tertiary dark:text-dark-text-tertiary">
                           {tenant.userCount || 0}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-light-text-tertiary dark:text-dark-text-tertiary">
@@ -115,13 +196,13 @@ const TenantsPage: React.FC = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <button
                             className="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300"
-                            onClick={() => {/* TODO: Edit tenant */}}
+                            onClick={() => handleEditTenant(tenant)}
                           >
                             Edit
                           </button>
                           <button
                             className="ml-2 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                            onClick={() => {/* TODO: Delete tenant */}}
+                            onClick={() => handleDeleteTenant(tenant)}
                           >
                             Delete
                           </button>
@@ -144,7 +225,7 @@ const TenantsPage: React.FC = () => {
                 <p className="text-light-text-tertiary dark:text-dark-text-tertiary mb-4">Get started by creating your first tenant.</p>
                 <button
                   className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                  onClick={() => {/* TODO: Open create tenant modal */}}
+                  onClick={handleCreateTenant}
                 >
                   Create Tenant
                 </button>
@@ -153,6 +234,27 @@ const TenantsPage: React.FC = () => {
           )}
         </div>
       </div>
+      
+      <CreateTenantModal
+        isOpen={isCreateModalOpen}
+        onClose={handleCloseModal}
+        onSuccess={handleTenantCreated}
+      />
+      
+      <EditTenantModal
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        onSuccess={handleTenantUpdated}
+        tenant={selectedTenant}
+      />
+      
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
+        tenant={selectedTenant}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 };

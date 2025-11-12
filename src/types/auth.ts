@@ -19,6 +19,12 @@ export interface Tenant {
   updatedAt?: string;
   userCount?: number;
   documentCount?: number;
+  adminUser?: {
+    id: string;
+    email: string;
+    name: string;
+    role: UserRole;
+  };
 }
 
 export interface LoginRequest {
@@ -29,29 +35,27 @@ export interface LoginRequest {
 export interface LoginResponse {
   user: User;
   tokens: {
-    access_token: string;
-    refresh_token: string;
-    expires_in: number;
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
   };
 }
 
 export interface RefreshTokenRequest {
-  refresh_token: string;
+  refreshToken: string;
 }
 
 export interface RefreshTokenResponse {
-  access_token: string;
-  expires_in: number;
+  accessToken: string;
+  expiresIn: number;
 }
 
 export interface CreateTenantRequest {
   name: string;
   slug: string;
-  adminUser: {
-    email: string;
-    password: string;
-    name: string;
-  };
+  adminEmail: string;
+  adminName: string;
+  adminPassword: string;
 }
 
 export interface CreateTenantResponse {
@@ -59,12 +63,17 @@ export interface CreateTenantResponse {
   name: string;
   slug: string;
   createdAt: string;
-  adminUser: {
+  adminUser?: {
     id: string;
     email: string;
     name: string;
     role: UserRole;
   };
+}
+
+export interface UpdateTenantRequest {
+  name?: string;
+  slug?: string;
 }
 
 export interface CreateUserRequest {

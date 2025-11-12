@@ -18,7 +18,7 @@ class APIClient {
   }
 
   private setupInterceptors() {
-    // Request interceptor to add auth token
+    // Request interceptor to add auth token and transform data
     this.client.interceptors.request.use(
       (config) => {
         const token = localStorage.getItem('accessToken');
@@ -30,14 +30,26 @@ class APIClient {
         } else {
           console.log('Request interceptor - No token found');
         }
+        
+        // Convert camelCase to snake_case in request data
+        if (config.data) {
+          config.data = this.transformKeysToSnakeCase(config.data);
+        }
+        
         return config;
       },
       (error) => Promise.reject(error)
     );
 
-    // Response interceptor to handle token refresh
+    // Response interceptor to handle token refresh and data transformation
     this.client.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        // Convert snake_case to camelCase in response data
+        if (response.data) {
+          response.data = this.transformKeysToCamelCase(response.data);
+        }
+        return response;
+      },
       async (error) => {
         const originalRequest = error.config;
 
@@ -61,13 +73,13 @@ class APIClient {
 
               // Handle the nested response structure from the backend
               // The backend returns: { data: { data: { access_token, expires_in }, message } }
-              const responseData = response.data;
-              if (responseData && responseData.data && responseData.data.access_token) {
-                const { access_token } = responseData.data;
-                localStorage.setItem('accessToken', access_token);
+              const responseData = this.transformKeysToCamelCase(response.data);
+              if (responseData && responseData.data && responseData.data.accessToken) {
+                const { accessToken } = responseData.data;
+                localStorage.setItem('accessToken', accessToken);
 
                 // Retry the original request with new token
-                originalRequest.headers.Authorization = `Bearer ${access_token}`;
+                originalRequest.headers.Authorization = `Bearer ${accessToken}`;
                 return this.client(originalRequest);
               } else {
                 console.error('Invalid response format from refresh endpoint:', responseData);
@@ -120,6 +132,60 @@ class APIClient {
         ...config?.headers,
       },
     });
+  }
+
+  /**
+   * Recursively converts object keys from snake_case to camelCase
+   */
+  private transformKeysToCamelCase(obj: any): any {
+    if (obj === null || obj === undefined) {
+      return obj;
+    }
+
+    if (Array.isArray(obj)) {
+      return obj.map(item => this.transformKeysToCamelCase(item));
+    }
+
+    if (typeof obj === 'object') {
+      const transformed: any = {};
+      for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          // Convert snake_case to camelCase
+          const camelCaseKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+          transformed[camelCaseKey] = this.transformKeysToCamelCase(obj[key]);
+        }
+      }
+      return transformed;
+    }
+
+    return obj;
+  }
+
+  /**
+   * Recursively converts object keys from camelCase to snake_case
+   */
+  private transformKeysToSnakeCase(obj: any): any {
+    if (obj === null || obj === undefined) {
+      return obj;
+    }
+
+    if (Array.isArray(obj)) {
+      return obj.map(item => this.transformKeysToSnakeCase(item));
+    }
+
+    if (typeof obj === 'object') {
+      const transformed: any = {};
+      for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          // Convert camelCase to snake_case
+          const snakeCaseKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+          transformed[snakeCaseKey] = this.transformKeysToSnakeCase(obj[key]);
+        }
+      }
+      return transformed;
+    }
+
+    return obj;
   }
 }
 

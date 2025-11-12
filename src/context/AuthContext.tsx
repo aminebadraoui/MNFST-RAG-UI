@@ -122,12 +122,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await authAPI.login(email, password);
       
       console.log('Login response:', response);
-      console.log('Access token:', response.tokens.access_token);
-      console.log('Refresh token:', response.tokens.refresh_token);
-      
+      console.log('Access token:', response.tokens.accessToken);
+      console.log('Refresh token:', response.tokens.refreshToken);
+
       // Store tokens in localStorage
-      localStorage.setItem('accessToken', response.tokens.access_token);
-      localStorage.setItem('refreshToken', response.tokens.refresh_token);
+      localStorage.setItem('accessToken', response.tokens.accessToken);
+      localStorage.setItem('refreshToken', response.tokens.refreshToken);
       localStorage.setItem('userData', JSON.stringify(response.user));
       
       // Verify tokens are stored
@@ -138,8 +138,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         type: 'LOGIN_SUCCESS',
         payload: {
           user: response.user,
-          accessToken: response.tokens.access_token,
-          refreshToken: response.tokens.refresh_token,
+          accessToken: response.tokens.accessToken,
+          refreshToken: response.tokens.refreshToken,
         },
       });
     } catch (error: any) {
@@ -167,8 +167,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const response = await authAPI.refreshToken(refreshToken);
-      localStorage.setItem('accessToken', response.access_token);
-      dispatch({ type: 'REFRESH_TOKEN', payload: response.access_token });
+      localStorage.setItem('accessToken', response.accessToken);
+      dispatch({ type: 'REFRESH_TOKEN', payload: response.accessToken });
     } catch (error) {
       // If refresh fails, logout the user
       logout();

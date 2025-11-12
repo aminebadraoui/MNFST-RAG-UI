@@ -11,6 +11,12 @@ let mockTenants: Tenant[] = [
     createdAt: new Date('2024-01-01').toISOString(),
     userCount: 5,
     documentCount: 12,
+    adminUser: {
+      id: 'admin_1',
+      email: 'admin@acme.com',
+      name: 'John Doe',
+      role: 'tenant_admin' as const,
+    },
   },
   {
     id: 'tenant_2',
@@ -19,6 +25,12 @@ let mockTenants: Tenant[] = [
     createdAt: new Date('2024-01-15').toISOString(),
     userCount: 3,
     documentCount: 8,
+    adminUser: {
+      id: 'admin_2',
+      email: 'admin@techstartup.com',
+      name: 'Jane Smith',
+      role: 'tenant_admin' as const,
+    },
   },
 ];
 
@@ -38,8 +50,8 @@ export const mockTenantAPI = {
 
     const adminUser = {
       id: MockDataGenerator.generateId(),
-      email: data.adminUser.email,
-      name: data.adminUser.name,
+      email: data.adminEmail,
+      name: data.adminName,
       role: 'tenant_admin' as const,
     };
 
