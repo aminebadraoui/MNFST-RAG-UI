@@ -1,4 +1,4 @@
-import { User, Session, Message, Document, SocialLink, UserRole } from '../../types';
+import { User, Session, Message, Document, SocialLink, UserRole, Chat } from '../../types';
 
 export class MockDataGenerator {
   private static idCounter = 1;
@@ -25,6 +25,8 @@ export class MockDataGenerator {
     const sessions = Array.from({ length: count }, (_, i) => ({
       id: this.generateId(),
       title: `Chat Session ${i + 1}`,
+      chatId: `mock_chat_${(i % 3) + 1}`,
+      userId: 'mock-user-id',
       createdAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
       updatedAt: new Date(Date.now() - i * 12 * 60 * 60 * 1000).toISOString()
     }));
@@ -33,6 +35,20 @@ export class MockDataGenerator {
     return sessions.sort((a, b) =>
       new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     );
+  }
+
+  static generateChats(count: number = 3): Chat[] {
+    return Array.from({ length: count }, (_, i) => ({
+      id: this.generateId(),
+      name: `Chat ${i + 1}`,
+      systemPrompt: i === 0 ? "You are a helpful customer service assistant." :
+                 i === 1 ? "You are a technical support specialist." :
+                           "You are a general knowledge assistant.",
+      createdAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date(Date.now() - i * 12 * 60 * 60 * 1000).toISOString(),
+      tenantId: 'mock-tenant-id',
+      sessionCount: Math.floor(Math.random() * 10)
+    }));
   }
 
   static generateMessages(sessionId: string, count: number = 10): Message[] {

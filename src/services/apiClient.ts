@@ -146,7 +146,7 @@ class APIClient {
       return obj.map(item => this.transformKeysToCamelCase(item));
     }
 
-    if (typeof obj === 'object') {
+    if (typeof obj === 'object' && obj.constructor === Object) {
       const transformed: any = {};
       for (const key in obj) {
         if (obj.hasOwnProperty(key)) {
@@ -173,7 +173,7 @@ class APIClient {
       return obj.map(item => this.transformKeysToSnakeCase(item));
     }
 
-    if (typeof obj === 'object') {
+    if (typeof obj === 'object' && obj.constructor === Object) {
       const transformed: any = {};
       for (const key in obj) {
         if (obj.hasOwnProperty(key)) {

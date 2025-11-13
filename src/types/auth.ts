@@ -27,6 +27,16 @@ export interface Tenant {
   };
 }
 
+export interface Chat {
+  id: string;
+  name: string;
+  systemPrompt?: string;
+  createdAt: string;
+  updatedAt?: string;
+  tenantId: string;
+  sessionCount?: number;
+}
+
 export interface LoginRequest {
   email: string;
   password: string;
@@ -74,6 +84,16 @@ export interface CreateTenantResponse {
 export interface UpdateTenantRequest {
   name?: string;
   slug?: string;
+}
+
+export interface CreateChatRequest {
+  name: string;
+  systemPrompt?: string;
+}
+
+export interface UpdateChatRequest {
+  name?: string;
+  systemPrompt?: string;
 }
 
 export interface CreateUserRequest {

@@ -10,10 +10,13 @@ export interface Session {
   title: string;
   createdAt: string;
   updatedAt: string;
+  chatId: string;
+  userId: string;
 }
 
 export interface CreateSessionRequest {
   title: string;
+  chat_id: string;
 }
 
 export interface SendMessageRequest {

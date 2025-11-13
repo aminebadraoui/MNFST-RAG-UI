@@ -1,4 +1,7 @@
 import { 
+  Chat,
+  CreateChatRequest,
+  UpdateChatRequest,
   Message, 
   Session, 
   CreateSessionRequest, 
@@ -11,6 +14,7 @@ import { mockApiClient } from './mockApiClient';
 import { MockDataGenerator } from './mockDataGenerator';
 
 // Store mock data in memory for consistency
+let mockChats: Chat[] = MockDataGenerator.generateChats();
 let mockSessions: Session[] = MockDataGenerator.generateSessions();
 let mockMessages: Record<string, Message[]> = {};
 
@@ -19,19 +23,114 @@ mockSessions.forEach(session => {
   mockMessages[session.id] = MockDataGenerator.generateMessages(session.id);
 });
 
+// Define DataResponse interface for type safety
+interface DataResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+}
+
 export const mockChatAPI = {
-  getSessions: async (): Promise<GetSessionsResponse> => {
-    // Sort sessions by updatedAt in descending order (most recent first)
-    const sortedSessions = [...mockSessions].sort((a, b) =>
-      new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-    );
-    return mockApiClient.get({ sessions: sortedSessions });
+  // Chat endpoints
+  getChats: async (): Promise<Chat[]> => {
+    const response = await mockApiClient.get<DataResponse<Chat[]>>({
+      success: true,
+      data: mockChats,
+      message: "Chats retrieved successfully"
+    });
+    return response.data;
   },
 
-  createSession: async (title: string): Promise<Session> => {
+  createChat: async (data: CreateChatRequest): Promise<Chat> => {
+    const newChat: Chat = {
+      id: MockDataGenerator.generateId(),
+      name: data.name,
+      systemPrompt: data.systemPrompt,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      tenantId: 'mock-tenant-id',
+      sessionCount: 0
+    };
+    
+    mockChats.unshift(newChat);
+    
+    const response = await mockApiClient.post<DataResponse<Chat>>({
+      success: true,
+      data: newChat,
+      message: "Chat created successfully"
+    });
+    return response.data;
+  },
+
+  getChat: async (chatId: string): Promise<Chat> => {
+    const chat = mockChats.find(c => c.id === chatId);
+    if (!chat) {
+      throw new Error('Chat not found');
+    }
+    
+    const response = await mockApiClient.get<DataResponse<Chat>>({
+      success: true,
+      data: chat,
+      message: "Chat retrieved successfully"
+    });
+    return response.data;
+  },
+
+  updateChat: async (chatId: string, data: UpdateChatRequest): Promise<Chat> => {
+    const chatIndex = mockChats.findIndex(c => c.id === chatId);
+    if (chatIndex === -1) {
+      throw new Error('Chat not found');
+    }
+    
+    mockChats[chatIndex] = {
+      ...mockChats[chatIndex],
+      ...data,
+      updatedAt: new Date().toISOString()
+    };
+    
+    const response = await mockApiClient.get<DataResponse<Chat>>({
+      success: true,
+      data: mockChats[chatIndex],
+      message: "Chat updated successfully"
+    });
+    return response.data;
+  },
+
+  deleteChat: async (chatId: string): Promise<void> => {
+    const chatIndex = mockChats.findIndex(c => c.id === chatId);
+    if (chatIndex === -1) {
+      throw new Error('Chat not found');
+    }
+    
+    mockChats.splice(chatIndex, 1);
+    
+    // Also delete associated sessions and messages
+    mockSessions = mockSessions.filter(s => s.chatId !== chatId);
+    Object.keys(mockMessages).forEach(messageId => {
+      const session = mockSessions.find(s => s.id === messageId);
+      if (!session || session.chatId === chatId) {
+        delete mockMessages[messageId];
+      }
+    });
+  },
+
+  // Session endpoints
+  getChatSessions: async (chatId: string): Promise<Session[]> => {
+    const sessions = mockSessions.filter(s => s.chatId === chatId);
+    const response = await mockApiClient.get<DataResponse<Session[]>>({
+      success: true,
+      data: sessions,
+      message: "Sessions retrieved successfully"
+    });
+    return response.data;
+  },
+
+  createSession: async (data: CreateSessionRequest): Promise<Session> => {
     const newSession: Session = {
       id: MockDataGenerator.generateId(),
-      title,
+      title: data.title,
+      chatId: data.chat_id,
+      userId: 'mock-user-id',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -39,12 +138,33 @@ export const mockChatAPI = {
     mockSessions.unshift(newSession);
     mockMessages[newSession.id] = [];
     
-    return mockApiClient.post(newSession);
+    const response = await mockApiClient.post<DataResponse<Session>>({
+      success: true,
+      data: newSession,
+      message: "Session created successfully"
+    });
+    return response.data;
   },
 
-  getMessages: async (sessionId: string): Promise<GetMessagesResponse> => {
+  deleteSession: async (sessionId: string): Promise<void> => {
+    const sessionIndex = mockSessions.findIndex(s => s.id === sessionId);
+    if (sessionIndex === -1) {
+      throw new Error('Session not found');
+    }
+    
+    mockSessions.splice(sessionIndex, 1);
+    delete mockMessages[sessionId];
+  },
+
+  // Message endpoints
+  getMessages: async (sessionId: string): Promise<Message[]> => {
     const messages = mockMessages[sessionId] || [];
-    return mockApiClient.get({ messages });
+    const response = await mockApiClient.get<DataResponse<Message[]>>({
+      success: true,
+      data: messages,
+      message: "Messages retrieved successfully"
+    });
+    return response.data;
   },
 
   sendMessage: async (sessionId: string, message: SendMessageRequest): Promise<Message> => {
@@ -84,7 +204,12 @@ export const mockChatAPI = {
       session.updatedAt = new Date().toISOString();
     }
 
-    return mockApiClient.post(userMessage, 1000);
+    const response = await mockApiClient.post<DataResponse<Message>>({
+      success: true,
+      data: userMessage,
+      message: "Message sent successfully"
+    });
+    return response.data;
   },
 
   // Streaming message method
