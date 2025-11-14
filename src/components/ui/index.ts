@@ -5,5 +5,6 @@ export * from './CreateTenantModal';
 export * from './EditTenantModal';
 export * from './DeleteConfirmationModal';
 export * from './ThemeToggle';
+export * from './SidebarThemeToggle';
 export * from './ChatConfigurationModal';
 export * from './GenericDeleteConfirmationModal';

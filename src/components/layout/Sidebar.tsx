@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import * as React from 'react';
+import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   ChatBubbleLeftIcon,
@@ -15,6 +16,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
 import { UserRole } from '../../types';
+import { SidebarThemeToggle } from '../ui';
 
 interface SidebarProps {
   sidebarOpen?: boolean;
@@ -189,6 +191,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <p className="text-xs text-light-text-quaternary dark:text-dark-text-quaternary">{user?.email}</p>
               </div>
             </div>
+          </div>
+
+          {/* Theme Toggle */}
+          <div className="flex-shrink-0 border-t border-light-border-primary dark:border-dark-border-primary px-2 py-2">
+            <SidebarThemeToggle />
           </div>
         </div>
       </div>

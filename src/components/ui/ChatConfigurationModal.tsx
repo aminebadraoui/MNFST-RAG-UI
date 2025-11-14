@@ -46,10 +46,6 @@ const ChatConfigurationModal: React.FC<ChatConfigurationModalProps> = ({
       newErrors.name = 'Chat name is required';
     }
 
-    if (formData.systemPrompt && formData.systemPrompt.length > 2000) {
-      newErrors.systemPrompt = 'System prompt must be less than 2000 characters';
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -80,7 +76,11 @@ const ChatConfigurationModal: React.FC<ChatConfigurationModalProps> = ({
         if (formData.name !== chat.name) {
           updateData.name = formData.name;
         }
-        if (formData.systemPrompt !== chat.systemPrompt) {
+        // Normalize both values to handle null/undefined vs empty string
+        const currentSystemPrompt = chat.systemPrompt || '';
+        const formSystemPrompt = formData.systemPrompt || '';
+        
+        if (formSystemPrompt !== currentSystemPrompt) {
           updateData.systemPrompt = formData.systemPrompt;
         }
         response = await chatAPI.updateChat(chat.id, updateData);
@@ -214,7 +214,7 @@ const ChatConfigurationModal: React.FC<ChatConfigurationModalProps> = ({
             />
             <div className="flex justify-between items-center mt-1">
               <p className="text-sm text-light-text-quaternary dark:text-dark-text-quaternary">
-                {formData.systemPrompt.length}/2000 characters
+                {formData.systemPrompt.length} characters
               </p>
               <p className="text-xs text-light-text-quaternary dark:text-dark-text-quaternary">
                 Provide context and instructions for the AI assistant

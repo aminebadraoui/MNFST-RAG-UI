@@ -1,12 +1,12 @@
-import React from 'react';
+import * as React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { SettingsProvider } from './context/SettingsContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import RoleBasedRoute from './components/auth/RoleBasedRoute';
-import { ThemeToggle } from './components/ui';
 import LoginPage from './pages/LoginPage';
-import ChatPage from './pages/ChatPage';
+import ChatBotsPage from './pages/ChatBotsPage';
+import ChatInterface from './pages/ChatInterface';
 import DocumentsPage from './pages/DocumentsPage';
 import SocialPage from './pages/SocialPage';
 import SettingsPage from './pages/SettingsPage';
@@ -20,7 +20,6 @@ function App() {
     <div className="App">
       <AuthProvider>
         <SettingsProvider>
-          <ThemeToggle />
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/" element={
@@ -39,7 +38,18 @@ function App() {
                 <AppLayout>
                   <RoleBasedRoute
                     roles={['superadmin', 'tenant_admin', 'user']}
-                    element={<ChatPage />}
+                    element={<ChatBotsPage />}
+                    fallback={<Navigate to="/chat" replace />}
+                  />
+                </AppLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/chat/:chatId" element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <RoleBasedRoute
+                    roles={['superadmin', 'tenant_admin', 'user']}
+                    element={<ChatInterface />}
                     fallback={<Navigate to="/chat" replace />}
                   />
                 </AppLayout>

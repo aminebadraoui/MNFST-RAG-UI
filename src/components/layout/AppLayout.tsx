@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import * as React from 'react';
+import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import MainContent from './MainContent';
@@ -16,7 +17,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const location = useLocation();
 
   // Check if the current route is chat page to apply full height
-  const isChatPage = location.pathname === '/chat';
+  const isChatPage = location.pathname === '/chat' || location.pathname.startsWith('/chat/');
 
   return (
     <div className={`min-h-screen bg-light-bg-primary dark:bg-dark-bg-primary ${theme === 'dark' ? 'dark' : ''} flex`}>
