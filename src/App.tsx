@@ -5,6 +5,7 @@ import { SettingsProvider } from './context/SettingsContext';
 import { RoutePreserver, ProtectedRoute, RoleBasedRoute } from './components/auth';
 import LoginPage from './pages/LoginPage';
 import ChatBotsPage from './pages/ChatBotsPage';
+import TestPage from './pages/TestPage';
 import ChatInterface from './pages/ChatInterface';
 import DocumentsPage from './pages/DocumentsPage';
 import SocialPage from './pages/SocialPage';
@@ -73,6 +74,17 @@ function App() {
                   <RoleBasedRoute
                     roles={['superadmin', 'tenant_admin']}
                     element={<TrainPage />}
+                    fallback={<Navigate to="/chat" replace />}
+                  />
+                </AppLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/test" element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <RoleBasedRoute
+                    roles={['superadmin', 'tenant_admin', 'user']}
+                    element={<TestPage />}
                     fallback={<Navigate to="/chat" replace />}
                   />
                 </AppLayout>

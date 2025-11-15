@@ -8,3 +8,4 @@ export * from './ThemeToggle';
 export * from './SidebarThemeToggle';
 export * from './ChatConfigurationModal';
 export * from './GenericDeleteConfirmationModal';
+export * from './ChatbotWizard';

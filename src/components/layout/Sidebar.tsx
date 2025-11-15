@@ -12,7 +12,8 @@ import {
   ArrowRightOnRectangleIcon,
   ArrowUpTrayIcon,
   PlayIcon,
-  PhotoIcon
+  PhotoIcon,
+  BeakerIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
 import { UserRole } from '../../types';
@@ -65,6 +66,14 @@ const Sidebar: React.FC<SidebarProps> = ({
         current: location.pathname === '/train',
       });
     }
+
+    // Test Category - accessible to all authenticated users
+    items.push({
+      name: 'Test',
+      href: '/test',
+      icon: BeakerIcon,
+      current: location.pathname === '/test',
+    });
 
     // Settings Category - accessible to all authenticated users
     items.push({
