@@ -2,8 +2,7 @@ import * as React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { SettingsProvider } from './context/SettingsContext';
-import ProtectedRoute from './components/auth/ProtectedRoute';
-import RoleBasedRoute from './components/auth/RoleBasedRoute';
+import { RoutePreserver, ProtectedRoute, RoleBasedRoute } from './components/auth';
 import LoginPage from './pages/LoginPage';
 import ChatBotsPage from './pages/ChatBotsPage';
 import ChatInterface from './pages/ChatInterface';
@@ -20,7 +19,8 @@ function App() {
     <div className="App">
       <AuthProvider>
         <SettingsProvider>
-          <Routes>
+          <RoutePreserver>
+            <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/" element={
               <ProtectedRoute>
@@ -113,6 +113,7 @@ function App() {
             <Route path="/404" element={<NotFoundPage />} />
             <Route path="*" element={<Navigate to="/404" replace />} />
           </Routes>
+          </RoutePreserver>
         </SettingsProvider>
       </AuthProvider>
     </div>

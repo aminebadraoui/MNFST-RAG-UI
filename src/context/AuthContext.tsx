@@ -10,6 +10,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  isInitialized: boolean; // Track if auth context has been initialized
 }
 
 type AuthAction =
@@ -18,7 +19,8 @@ type AuthAction =
   | { type: 'LOGIN_FAILURE'; payload: string }
   | { type: 'LOGOUT' }
   | { type: 'REFRESH_TOKEN'; payload: string }
-  | { type: 'CLEAR_ERROR' };
+  | { type: 'CLEAR_ERROR' }
+  | { type: 'INIT_COMPLETE' };
 
 const initialState: AuthState = {
   user: null,
@@ -27,6 +29,7 @@ const initialState: AuthState = {
   isAuthenticated: false,
   isLoading: false,
   error: null,
+  isInitialized: false,
 };
 
 const authReducer = (state: AuthState, action: AuthAction): AuthState => {
@@ -42,6 +45,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         isAuthenticated: true,
         isLoading: false,
         error: null,
+        isInitialized: true,
       };
     case 'LOGIN_FAILURE':
       return {
@@ -52,6 +56,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         isAuthenticated: false,
         isLoading: false,
         error: action.payload,
+        isInitialized: true,
       };
     case 'LOGOUT':
       return {
@@ -62,11 +67,14 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         isAuthenticated: false,
         isLoading: false,
         error: null,
+        isInitialized: true,
       };
     case 'REFRESH_TOKEN':
       return { ...state, accessToken: action.payload };
     case 'CLEAR_ERROR':
       return { ...state, error: null };
+    case 'INIT_COMPLETE':
+      return { ...state, isInitialized: true };
     default:
       return state;
   }
@@ -91,11 +99,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const userData = localStorage.getItem('userData');
 
     if (accessToken && refreshToken && userData) {
-      const user = JSON.parse(userData);
-      dispatch({
-        type: 'LOGIN_SUCCESS',
-        payload: { user, accessToken, refreshToken },
-      });
+      try {
+        const user = JSON.parse(userData);
+        dispatch({
+          type: 'LOGIN_SUCCESS',
+          payload: { user, accessToken, refreshToken },
+        });
+      } catch (error) {
+        console.error('Failed to parse user data:', error);
+        dispatch({ type: 'INIT_COMPLETE' });
+      }
+    } else {
+      dispatch({ type: 'INIT_COMPLETE' });
     }
   }, []);
 
