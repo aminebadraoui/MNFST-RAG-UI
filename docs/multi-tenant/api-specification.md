@@ -470,40 +470,85 @@ interface GetDocumentsResponse {
 }
 ```
 
-### Upload Document
+### Get Presigned URL for Document Upload
 
 ```http
-POST /tenants/{tenantId}/documents
-Authorization: Bearer <superadmin-token> or <tenant-admin-token> or <user-token>
-Content-Type: multipart/form-data
+POST /documents/presigned-url
+Authorization: Bearer <tenant-admin-token>
 ```
 
-**Form Data:**
-- `file` (file): Document file
-- `metadata` (string): JSON string with metadata
+**Query Parameters:**
+- `file_name` (string): Original filename
+- `mime_type` (string): MIME type of the file
+- `file_size` (number): File size in bytes
 
-**Metadata Format:**
+**Response:**
 ```typescript
-interface DocumentMetadata {
-  title?: string;
-  description?: string;
-  tags?: string[];
-  category?: string;
+interface PresignedUrlResponse {
+  upload_url: string;      // Presigned URL for direct upload to R2
+  file_key: string;        // Unique file key in R2 bucket
+  document_id: string;      // Document ID
+  public_url: string;      // Public URL for accessing the file
+}
+```
+
+### Register Uploaded Document
+
+```http
+POST /documents/register-upload
+Authorization: Bearer <tenant-admin-token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```typescript
+interface RegisterUploadRequest {
+  document_id: string;      // Document ID from presigned URL response
+  file_name: string;        // Original filename
+  file_key: string;         // File key in R2 bucket
+  public_url: string;       // Public URL for accessing the file
+  file_size: number;        // File size in bytes
+  mime_type: string;        // MIME type of the file
 }
 ```
 
 **Response:**
 ```typescript
-interface UploadDocumentResponse {
+interface RegisterUploadResponse {
   document: {
     id: string;
     filename: string;
-    type: string;
+    original_name: string;
     size: number;
-    status: 'uploading';
-    uploadedBy: string;
-    uploadedAt: string;
+    mime_type: string;
+    status: 'uploaded' | 'processing' | 'processed' | 'error';
+    created_at: string;
+    processed_at?: string;
+    error?: string;
   };
+}
+```
+
+### Get Upload Status
+
+```http
+GET /documents/upload/{uploadId}/status
+Authorization: Bearer <tenant-admin-token>
+```
+
+**Response:**
+```typescript
+interface UploadStatusResponse {
+  uploadId: string;
+  status: 'processing' | 'completed' | 'error';
+  documents: Array<{
+    id: string;
+    filename: string;
+    status: 'uploaded' | 'processing' | 'processed' | 'error';
+    progress: number;  // 0-100
+    processedAt?: string;
+    error?: string;
+  }>;
 }
 ```
 
@@ -521,12 +566,108 @@ DELETE /tenants/{tenantId}/documents/{documentId}
 Authorization: Bearer <superadmin-token> or <tenant-admin-token> or <user-token>
 ```
 
-## 💬 Chat Endpoints
+## 💬 Chat Configuration Endpoints
+
+### Get Chat Configurations
+
+```http
+GET /chats
+Authorization: Bearer <superadmin-token> or <tenant-admin-token> or <user-token>
+```
+
+**Response:**
+```typescript
+interface GetChatsResponse {
+  success: true;
+  data: Array<{
+    id: string;
+    name: string;
+    system_prompt?: string;
+    created_at: string;
+    updated_at?: string;
+    tenant_id: string;
+    session_count: number;
+  }>;
+}
+```
+
+### Create Chat Configuration
+
+```http
+POST /chats
+Authorization: Bearer <tenant-admin-token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```typescript
+interface CreateChatRequest {
+  name: string;
+  system_prompt?: string;
+}
+```
+
+**Response:**
+```typescript
+interface CreateChatResponse {
+  success: true;
+  data: {
+    id: string;
+    name: string;
+    system_prompt?: string;
+    created_at: string;
+    updated_at?: string;
+    tenant_id: string;
+    session_count: 0;
+  };
+}
+```
+
+### Update Chat Configuration
+
+```http
+PUT /chats/{chatId}
+Authorization: Bearer <tenant-admin-token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```typescript
+interface UpdateChatRequest {
+  name?: string;
+  system_prompt?: string;
+}
+```
+
+**Response:**
+```typescript
+interface UpdateChatResponse {
+  success: true;
+  data: {
+    id: string;
+    name: string;
+    system_prompt?: string;
+    created_at: string;
+    updated_at: string;
+    tenant_id: string;
+    session_count: number;
+  };
+}
+```
+
+### Delete Chat Configuration
+
+```http
+DELETE /chats/{chatId}
+Authorization: Bearer <tenant-admin-token>
+```
+
+## 💬 Chat Session Endpoints
 
 ### Create Chat Session
 
 ```http
-POST /tenants/{tenantId}/chat/sessions
+POST /sessions
 Authorization: Bearer <superadmin-token> or <tenant-admin-token> or <user-token>
 Content-Type: application/json
 ```
@@ -534,19 +675,22 @@ Content-Type: application/json
 **Request Body:**
 ```typescript
 interface CreateChatSessionRequest {
-  title?: string;
-  documentIds?: string[];  // Optional: specific documents to chat with
+  title: string;
+  chat_id: string;      // Chat configuration ID
 }
 ```
 
 **Response:**
 ```typescript
 interface CreateChatSessionResponse {
-  session: {
+  success: true;
+  data: {
     id: string;
     title: string;
-    createdAt: string;
-    userId: string;
+    created_at: string;
+    updated_at: string;
+    user_id: string;
+    chat_id: string;
   };
 }
 ```
@@ -554,7 +698,7 @@ interface CreateChatSessionResponse {
 ### Send Message
 
 ```http
-POST /tenants/{tenantId}/chat/sessions/{sessionId}/messages
+POST /sessions/{sessionId}/messages
 Authorization: Bearer <superadmin-token> or <tenant-admin-token> or <user-token>
 Content-Type: application/json
 ```
@@ -562,36 +706,56 @@ Content-Type: application/json
 **Request Body:**
 ```typescript
 interface SendMessageRequest {
-  message: string;
-  context?: {
-    documentIds?: string[];
-    searchQuery?: string;
-  };
+  content: string;
+  role: 'user';
+  stream?: boolean;  // Whether to request streaming response
 }
 ```
 
 **Response:**
 ```typescript
 interface SendMessageResponse {
-  message: {
+  success: true;
+  data: {
     id: string;
-    role: 'user' | 'assistant';
+    session_id: string;
     content: string;
+    role: 'assistant';
     timestamp: string;
   };
-  sources?: Array<{
-    documentId: string;
-    filename: string;
-    relevanceScore: number;
-    snippet: string;
-  }>;
 }
+```
+
+### Send Message with Streaming
+
+```http
+POST /sessions/{sessionId}/messages/stream
+Authorization: Bearer <superadmin-token> or <tenant-admin-token> or <user-token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```typescript
+interface SendMessageRequest {
+  content: string;
+  role: 'user';
+}
+```
+
+**Response:** Server-Sent Events stream
+```
+data: {"type": "start", "messageId": "msg_123"}
+data: {"type": "token", "content": "Message received, here is all the data I received: "}
+data: {"type": "token", "content": "message: 'Hello', user_id: 'user123', "}
+data: {"type": "token", "content": "tenant_id: 'tenant456', session_id: 'session789', "}
+data: {"type": "token", "content": "system_prompt: 'You are a helpful assistant'"}
+data: {"type": "end", "messageId": "msg_123"}
 ```
 
 ### Get Chat History
 
 ```http
-GET /tenants/{tenantId}/chat/sessions/{sessionId}/messages?page=1&limit=50
+GET /sessions/{sessionId}/messages?page=1&limit=50
 Authorization: Bearer <superadmin-token> or <tenant-admin-token> or <user-token>
 ```
 
@@ -854,10 +1018,30 @@ const tenant = await client.tenants.create({
   }
 });
 
-// Upload document
-const document = await client.documents.upload(tenant.id, file, {
-  title: 'Company Handbook',
-  tags: ['hr', 'policy']
+// Get presigned URL for document upload
+const presignedResponse = await client.documents.getPresignedUrl({
+  file_name: 'handbook.pdf',
+  mime_type: 'application/pdf',
+  file_size: 1024000
+});
+
+// Upload file directly to R2
+await fetch(presignedResponse.upload_url, {
+  method: 'PUT',
+  body: file,
+  headers: {
+    'Content-Type': 'application/pdf'
+  }
+});
+
+// Register the upload
+const document = await client.documents.registerUpload({
+  document_id: presignedResponse.document_id,
+  file_name: 'handbook.pdf',
+  file_key: presignedResponse.file_key,
+  public_url: presignedResponse.public_url,
+  file_size: 1024000,
+  mime_type: 'application/pdf'
 });
 
 // Send chat message
@@ -889,16 +1073,30 @@ tenant = client.tenants.create({
     }
 })
 
-# Upload document
+# Get presigned URL for document upload
+presigned_response = client.documents.get_presigned_url(
+    file_name='handbook.pdf',
+    mime_type='application/pdf',
+    file_size=1024000
+)
+
+# Upload file directly to R2
 with open('handbook.pdf', 'rb') as f:
-    document = client.documents.upload(
-        tenant.id, 
-        f, 
-        metadata={
-            'title': 'Company Handbook',
-            'tags': ['hr', 'policy']
-        }
+    upload_response = requests.put(
+        presigned_response['upload_url'],
+        data=f,
+        headers={'Content-Type': 'application/pdf'}
     )
+
+# Register the upload
+document = client.documents.register_upload({
+    'document_id': presigned_response['document_id'],
+    'file_name': 'handbook.pdf',
+    'file_key': presigned_response['file_key'],
+    'public_url': presigned_response['public_url'],
+    'file_size': 1024000,
+    'mime_type': 'application/pdf'
+})
 
 # Send chat message
 response = client.chat.send_message(

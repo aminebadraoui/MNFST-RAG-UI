@@ -417,14 +417,49 @@ Authorization: Bearer <tenant-admin-token>
 }
 ```
 
-### Upload Document
+### Get Presigned URL for Upload
 
 ```http
-POST /api/v1/documents/upload
+POST /api/v1/documents/presigned-url
 Authorization: Bearer <tenant-admin-token>
-Content-Type: multipart/form-data
+Content-Type: application/json
 
-file: <binary-data>
+{
+  "file_name": "document.pdf",
+  "file_size": 1024000,
+  "mime_type": "application/pdf"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "uploadUrl": "https://example.r2.cloudflarestorage.com/upload",
+    "fileKey": "uploads/uuid/document.pdf",
+    "documentId": "doc_3",
+    "publicUrl": "https://example.r2.cloudflarestorage.com/public/document.pdf"
+  },
+  "message": "Presigned URL generated successfully"
+}
+```
+
+### Register Uploaded Document
+
+```http
+POST /api/v1/documents/register-upload
+Authorization: Bearer <tenant-admin-token>
+Content-Type: application/json
+
+{
+  "document_id": "doc_3",
+  "file_name": "document.pdf",
+  "file_key": "uploads/uuid/document.pdf",
+  "public_url": "https://example.r2.cloudflarestorage.com/public/document.pdf",
+  "file_size": 1024000,
+  "mime_type": "application/pdf"
+}
 ```
 
 **Response:**
@@ -433,47 +468,14 @@ file: <binary-data>
   "success": true,
   "data": {
     "id": "doc_3",
-    "filename": "document_123456.pdf",
-    "originalName": "my-document.pdf",
+    "filename": "system-generated-document.pdf",
+    "originalName": "document.pdf",
     "size": 1024000,
-    "fileType": "application/pdf",
+    "mimeType": "application/pdf",
     "status": "uploaded",
     "uploadedAt": "2024-01-01T11:00:00Z"
-  }
-}
-```
-
-### Upload Multiple Documents
-
-```http
-POST /api/v1/documents/upload-multiple
-Authorization: Bearer <tenant-admin-token>
-Content-Type: multipart/form-data
-
-files: [<binary-data-1>, <binary-data-2>]
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "uploadId": "upload_123",
-    "documents": [
-      {
-        "id": "doc_4",
-        "filename": "file1_123456.pdf",
-        "originalName": "file1.pdf",
-        "status": "uploaded"
-      },
-      {
-        "id": "doc_5",
-        "filename": "file2_123456.pdf",
-        "originalName": "file2.pdf",
-        "status": "uploaded"
-      }
-    ]
-  }
+  },
+  "message": "Document registered successfully"
 }
 ```
 

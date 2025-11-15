@@ -164,6 +164,19 @@ interface SocialLink {
 }
 ```
 
+#### Chat Configuration Model
+```typescript
+interface Chat {
+  id: string;                    // UUID
+  name: string;                  // Chat display name
+  system_prompt?: string;        // System prompt for AI assistant
+  createdAt: string;             // ISO 8601
+  updatedAt?: string;            // ISO 8601
+  tenantId: string;              // Tenant ID
+  sessionCount: number;          // Number of sessions in chat
+}
+```
+
 #### Chat Session Model
 ```typescript
 interface Session {
@@ -171,6 +184,8 @@ interface Session {
   title: string;
   createdAt: string;    // ISO 8601
   updatedAt: string;    // ISO 8601
+  userId: string;        // User ID who owns the session
+  chatId: string;       // Chat configuration ID
 }
 ```
 
@@ -181,6 +196,7 @@ interface Message {
   content: string;
   role: 'user' | 'assistant';
   timestamp: string;    // ISO 8601
+  sessionId: string;    // Session ID
 }
 ```
 
@@ -270,12 +286,29 @@ CREATE INDEX idx_social_links_tenant_id ON social_links(tenant_id);
 CREATE INDEX idx_social_links_platform ON social_links(platform);
 ```
 
+### Chat Configurations Table
+```sql
+CREATE TABLE chats (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL,
+    system_prompt TEXT,
+    tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indexes
+CREATE INDEX idx_chats_tenant_id ON chats(tenant_id);
+CREATE INDEX idx_chats_created_at ON chats(created_at);
+```
+
 ### Chat Sessions Table
 ```sql
 CREATE TABLE chat_sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title VARCHAR(255) NOT NULL,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    chat_id UUID NOT NULL REFERENCES chats(id) ON DELETE CASCADE,
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -283,6 +316,7 @@ CREATE TABLE chat_sessions (
 
 -- Indexes
 CREATE INDEX idx_chat_sessions_user_id ON chat_sessions(user_id);
+CREATE INDEX idx_chat_sessions_chat_id ON chat_sessions(chat_id);
 CREATE INDEX idx_chat_sessions_tenant_id ON chat_sessions(tenant_id);
 CREATE INDEX idx_chat_sessions_created_at ON chat_sessions(created_at);
 ```
@@ -336,6 +370,7 @@ CREATE INDEX idx_refresh_tokens_expires_at ON refresh_tokens(expires_at);
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE documents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE social_links ENABLE ROW LEVEL SECURITY;
+ALTER TABLE chats ENABLE ROW LEVEL SECURITY;
 ALTER TABLE chat_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
 
@@ -354,6 +389,11 @@ CREATE POLICY documents_tenant_policy ON documents
 
 -- Social links are scoped to tenant
 CREATE POLICY social_links_tenant_policy ON social_links
+    FOR ALL TO authenticated_user
+    USING (tenant_id = current_setting('app.current_tenant_id')::UUID);
+
+-- Chat configurations are scoped to tenant
+CREATE POLICY chats_tenant_policy ON chats
     FOR ALL TO authenticated_user
     USING (tenant_id = current_setting('app.current_tenant_id')::UUID);
 
@@ -395,6 +435,9 @@ CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_tenants_updated_at BEFORE UPDATE ON tenants
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_chats_updated_at BEFORE UPDATE ON chats
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_chat_sessions_updated_at BEFORE UPDATE ON chat_sessions
@@ -637,34 +680,47 @@ Returns all documents for the tenant.
 }
 ```
 
-#### POST /api/v1/documents/upload
-Uploads a single document.
+#### POST /api/v1/documents/presigned-url
+Generates a presigned URL for direct upload to Cloudflare R2.
 
-**Request:** `multipart/form-data`
-- `file`: Binary file data
-
-**Response:**
-```typescript
-{
-  success: true;
-  data: Document;
-}
-```
-
-#### POST /api/v1/documents/upload-multiple
-Uploads multiple documents.
-
-**Request:** `multipart/form-data`
-- `files`: Array of binary file data
+**Request:** Query parameters
+- `file_name`: Original filename
+- `mime_type`: MIME type of the file
+- `file_size`: File size in bytes
 
 **Response:**
 ```typescript
 {
   success: true;
   data: {
-    uploadId: string;
-    documents: Document[];
+    upload_url: string;      // Presigned URL for direct upload
+    file_key: string;        // Unique file key in R2 bucket
+    document_id: string;      // Document ID
+    public_url: string;      // Public URL for accessing the file
   };
+}
+```
+
+#### POST /api/v1/documents/register-upload
+Registers a document that has been successfully uploaded to R2.
+
+**Request:**
+```typescript
+{
+  document_id: string;      // Document ID from presigned URL response
+  file_name: string;        // Original filename
+  file_key: string;         // File key in R2 bucket
+  public_url: string;       // Public URL for accessing the file
+  file_size: number;        // File size in bytes
+  mime_type: string;        // MIME type of the file
+}
+```
+
+**Response:**
+```typescript
+{
+  success: true;
+  data: Document;
 }
 ```
 
@@ -743,10 +799,86 @@ Deletes a social link.
 }
 ```
 
-### Chat Functionality Endpoints (All Authenticated Users)
+### Chat Configuration Management Endpoints
+
+#### GET /api/v1/chats
+Returns all chat configurations for the current user's tenant.
+
+**Response:**
+```typescript
+{
+  success: true;
+  data: Chat[];
+}
+```
+
+#### POST /api/v1/chats
+Creates a new chat configuration (tenant admin only).
+
+**Request:**
+```typescript
+{
+  name: string;
+  system_prompt?: string;
+}
+```
+
+**Response:**
+```typescript
+{
+  success: true;
+  data: Chat;
+}
+```
+
+#### GET /api/v1/chats/{chatId}
+Returns a specific chat configuration.
+
+**Response:**
+```typescript
+{
+  success: true;
+  data: Chat;
+}
+```
+
+#### PUT /api/v1/chats/{chatId}
+Updates a chat configuration (tenant admin only).
+
+**Request:**
+```typescript
+{
+  name?: string;
+  system_prompt?: string;
+}
+```
+
+**Response:**
+```typescript
+{
+  success: true;
+  data: Chat;
+}
+```
+
+#### DELETE /api/v1/chats/{chatId}
+Deletes a chat configuration and all associated sessions (tenant admin only).
+
+**Response:**
+```typescript
+{
+  success: true;
+  message: string;
+}
+```
+
+### Chat Session Management Endpoints (All Authenticated Users)
 
 #### GET /api/v1/sessions
 Returns all chat sessions for the user.
+
+**Query Parameters:**
+- `chat_id` (optional): Filter sessions by chat configuration ID
 
 **Response:**
 ```typescript
@@ -763,6 +895,7 @@ Creates a new chat session.
 ```typescript
 {
   title: string;
+  chat_id: string;      // Chat configuration ID
 }
 ```
 
@@ -964,12 +1097,15 @@ The chat streaming endpoint must implement Server-Sent Events with the following
 - Maximum total size per upload: 500MB
 
 ### Upload Processing Flow
-1. File uploaded with status 'uploaded'
-2. Backend processes file for RAG indexing
-3. Status updates to 'processing'
-4. Final status: 'processed' or 'error'
+1. Client requests presigned URL from `/documents/presigned-url`
+2. Client uploads file directly to Cloudflare R2 using presigned URL
+3. Client registers the upload with `/documents/register-upload`
+4. Backend processes file for RAG indexing
+5. Status updates to 'processing'
+6. Final status: 'processed' or 'error'
 
 ### File Storage Requirements
+- Use Cloudflare R2 for file storage with presigned URL approach
 - Store original files with secure access controls
 - Generate unique filenames to prevent collisions
 - Implement proper cleanup for failed uploads
