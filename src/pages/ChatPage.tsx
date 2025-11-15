@@ -52,18 +52,25 @@ const ChatPage: React.FC = () => {
       try {
         const response = await chatAPI.getChatSessions(currentChatId);
         setSessions(response);
-        if (response.length > 0 && !currentSessionId) {
-          setCurrentSessionId(response[0].id);
+        // Always select the first session if available, or clear if no sessions
+        if (response.length > 0) {
+          if (!currentSessionId) {
+            setCurrentSessionId(response[0].id);
+          }
+        } else {
+          setCurrentSessionId('');
         }
       } catch (error) {
         console.error('Failed to fetch sessions:', error);
+        setSessions([]);
+        setCurrentSessionId('');
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchSessions();
-  }, [currentChatId, currentSessionId]);
+  }, [currentChatId]);
 
   // Fetch messages when current session changes
   useEffect(() => {
@@ -357,22 +364,37 @@ const ChatPage: React.FC = () => {
         
         {/* Sessions List with independent scrolling */}
         <div className="flex-1 overflow-y-auto p-2">
-          {sessions.map((session) => (
-            <button
-              key={session.id}
-              onClick={() => setCurrentSessionId(session.id)}
-              className={`w-full text-left px-3 py-3 mb-2 rounded-lg ${
-                currentSessionId === session.id
-                  ? 'bg-primary-100 dark:bg-primary-900/30 border-l-4 border-l-primary-500 shadow-sm'
-                  : 'hover:bg-light-bg-tertiary dark:hover:bg-dark-bg-tertiary'
-              }`}
-            >
-              <div className="text-sm font-medium text-light-text-primary dark:text-dark-text-primary truncate">{session.title}</div>
-              <div className="text-xs text-light-text-quaternary dark:text-dark-text-quaternary mt-1">
-                {messages.length} messages • {new Date(session.createdAt).toLocaleDateString()}
+          {sessions.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-light-text-quaternary dark:text-dark-text-quaternary mb-4">
+                No sessions found for this chat
               </div>
-            </button>
-          ))}
+              <button
+                onClick={handleNewSession}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded text-primary-600 dark:text-primary-400 bg-primary-100 dark:bg-primary-900/30 hover:bg-primary-200 dark:hover:bg-primary-800/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              >
+                <PlusIcon className="h-4 w-4 mr-2" />
+                Create Your First Session
+              </button>
+            </div>
+          ) : (
+            sessions.map((session) => (
+              <button
+                key={session.id}
+                onClick={() => setCurrentSessionId(session.id)}
+                className={`w-full text-left px-3 py-3 mb-2 rounded-lg ${
+                  currentSessionId === session.id
+                    ? 'bg-primary-100 dark:bg-primary-900/30 border-l-4 border-l-primary-500 shadow-sm'
+                    : 'hover:bg-light-bg-tertiary dark:hover:bg-dark-bg-tertiary'
+                }`}
+              >
+                <div className="text-sm font-medium text-light-text-primary dark:text-dark-text-primary truncate">{session.title}</div>
+                <div className="text-xs text-light-text-quaternary dark:text-dark-text-quaternary mt-1">
+                  {messages.length} messages • {new Date(session.createdAt).toLocaleDateString()}
+                </div>
+              </button>
+            ))
+          )}
         </div>
       </div>
 
