@@ -3,7 +3,6 @@ import {
   DocumentTextIcon,
   ArrowUpTrayIcon,
   TrashIcon,
-  EyeIcon,
   DocumentIcon,
   ChevronUpDownIcon
 } from '@heroicons/react/24/outline';
@@ -171,13 +170,6 @@ const DocumentsPage: React.FC = () => {
     }
   };
 
-  const handleViewDocument = (publicUrl: string) => {
-    if (publicUrl) {
-      window.open(publicUrl, '_blank');
-    } else {
-      setError('Document URL not available');
-    }
-  };
 
   return (
     <div>
@@ -309,18 +301,10 @@ const DocumentsPage: React.FC = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-light-text-tertiary dark:text-dark-text-tertiary">
-                        {doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString() :
-                         (doc as any).created_at ? new Date((doc as any).created_at).toLocaleDateString() : 'N/A'}
+                        {(doc as any).createdAt ? new Date((doc as any).createdAt).toLocaleDateString() : 'N/A'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
-                          <button
-                            className="text-primary-600 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300"
-                            onClick={() => handleViewDocument(doc.publicUrl || '')}
-                            title="View Document"
-                          >
-                            <EyeIcon className="h-5 w-5" />
-                          </button>
                           <button
                             className="text-red-600 hover:text-red-900 dark:hover:text-red-400"
                             onClick={() => handleDeleteDocument(doc.id)}
