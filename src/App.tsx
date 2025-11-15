@@ -8,6 +8,7 @@ import ChatBotsPage from './pages/ChatBotsPage';
 import ChatInterface from './pages/ChatInterface';
 import DocumentsPage from './pages/DocumentsPage';
 import SocialPage from './pages/SocialPage';
+import TrainPage from './pages/TrainPage';
 import SettingsPage from './pages/SettingsPage';
 import TenantsPage from './pages/TenantsPage';
 import UsersPage from './pages/UsersPage';
@@ -61,6 +62,17 @@ function App() {
                   <RoleBasedRoute
                     roles={['superadmin', 'tenant_admin']}
                     element={<DocumentsPage />}
+                    fallback={<Navigate to="/chat" replace />}
+                  />
+                </AppLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/train" element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <RoleBasedRoute
+                    roles={['superadmin', 'tenant_admin']}
+                    element={<TrainPage />}
                     fallback={<Navigate to="/chat" replace />}
                   />
                 </AppLayout>

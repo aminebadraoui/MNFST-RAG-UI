@@ -4,15 +4,15 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   ChatBubbleLeftIcon,
   DocumentTextIcon,
-  LinkIcon,
   Cog6ToothIcon,
-  PlusIcon,
   ChatBubbleLeftRightIcon,
-  DocumentIcon,
   ShareIcon,
   BuildingOfficeIcon,
   UsersIcon,
-  ArrowRightOnRectangleIcon
+  ArrowRightOnRectangleIcon,
+  ArrowUpTrayIcon,
+  PlayIcon,
+  PhotoIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
 import { UserRole } from '../../types';
@@ -23,6 +23,14 @@ interface SidebarProps {
   setSidebarOpen?: (open: boolean) => void;
 }
 
+interface NavigationItem {
+  name: string;
+  href: string;
+  icon: React.ComponentType<any>;
+  current: boolean;
+  badge?: string;
+}
+
 const Sidebar: React.FC<SidebarProps> = ({
   sidebarOpen = false,
   setSidebarOpen
@@ -31,82 +39,65 @@ const Sidebar: React.FC<SidebarProps> = ({
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
-  // Role-based navigation
-  const getNavigationItems = () => {
-    // Superadmin only gets Tenants and Users
-    if (user?.role === 'superadmin') {
-      return [
-        {
-          name: 'Tenants',
-          href: '/tenants',
-          icon: BuildingOfficeIcon,
-          current: location.pathname === '/tenants',
-        },
-        {
-          name: 'Users',
-          href: '/users',
-          icon: UsersIcon,
-          current: location.pathname === '/users',
-        },
-        {
-          name: 'Settings',
-          href: '/settings',
-          icon: Cog6ToothIcon,
-          current: location.pathname === '/settings',
-        },
-      ];
+  // Helper function to check if user has admin role
+  const hasAdminRole = (): boolean => {
+    return user?.role === 'tenant_admin' || user?.role === 'superadmin';
+  };
+
+  // Role-based navigation items
+  const getNavigationItems = (): NavigationItem[] => {
+    const items: NavigationItem[] = [];
+
+    // Build Category - accessible to all authenticated users
+    items.push({
+      name: 'Build',
+      href: '/chat',
+      icon: ChatBubbleLeftIcon,
+      current: location.pathname === '/chat' || location.pathname.startsWith('/chat/'),
+    });
+
+    // Train Category - only for tenant_admin and superadmin
+    if (hasAdminRole()) {
+      items.push({
+        name: 'Train',
+        href: '/train',
+        icon: DocumentTextIcon,
+        current: location.pathname === '/train',
+      });
     }
 
-    // Regular navigation for other roles
-    const baseNavigation = [
-      {
-        name: 'Chat',
-        href: '/chat',
-        icon: ChatBubbleLeftRightIcon,
-        current: location.pathname === '/chat',
-      },
-      {
-        name: 'Settings',
-        href: '/settings',
-        icon: Cog6ToothIcon,
-        current: location.pathname === '/settings',
-      },
-    ];
+    // Settings Category - accessible to all authenticated users
+    items.push({
+      name: 'Settings',
+      href: '/settings',
+      icon: Cog6ToothIcon,
+      current: location.pathname === '/settings',
+    });
 
-    const adminNavigation = [
-      {
-        name: 'Documents',
-        href: '/documents',
-        icon: DocumentTextIcon,
-        current: location.pathname === '/documents',
-      },
-      {
-        name: 'Social Media',
-        href: '/social',
-        icon: ShareIcon,
-        current: location.pathname === '/social',
-      },
-    ];
-
-    const tenantAdminNavigation = [
-      {
+    // Users Category - only for tenant_admin and superadmin
+    if (hasAdminRole()) {
+      items.push({
         name: 'Users',
         href: '/users',
         icon: UsersIcon,
         current: location.pathname === '/users',
-      },
-    ];
-
-    let navigation = [...baseNavigation];
-
-    if (user?.role === 'tenant_admin') {
-      navigation = [...navigation, ...adminNavigation, ...tenantAdminNavigation];
+      });
     }
 
-    return navigation;
+    // Tenants Category - only for superadmin
+    if (user?.role === 'superadmin') {
+      items.push({
+        name: 'Tenants',
+        href: '/tenants',
+        icon: BuildingOfficeIcon,
+        current: location.pathname === '/tenants',
+      });
+    }
+
+    return items;
   };
 
-  const navigation = getNavigationItems();
+  const navigationItems = getNavigationItems();
 
   const handleLogout = () => {
     logout();
@@ -144,8 +135,8 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className="flex-1 flex flex-col min-h-0">
           {/* Navigation */}
           <nav className="flex-1 px-2 py-4 space-y-1">
-            {navigation.map((item) => {
-              const Icon = item.icon;
+            {navigationItems.map((item) => {
+              const ItemIcon = item.icon;
               return (
                 <Link
                   key={item.name}
@@ -158,8 +149,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                     }
                   `}
                 >
-                  <Icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                  <ItemIcon className="mr-3 h-5 w-5 flex-shrink-0" />
                   {item.name}
+                  {item.badge && (
+                    <span className="ml-auto inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-200">
+                      {item.badge}
+                    </span>
+                  )}
                 </Link>
               );
             })}
