@@ -5,7 +5,7 @@ import { PlusIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 import { chatAPI } from '../services';
 import { Chat } from '../types';
 import { useAuth } from '../context';
-import { ChatbotWizard } from '../components/ui';
+import { AgentWizard } from '../components/ui';
 
 const TestPage: React.FC = () => {
   const [chats, setChats] = useState<Chat[]>([]);
@@ -68,22 +68,22 @@ const TestPage: React.FC = () => {
       <div className="px-6 py-8 border-b border-light-border-primary dark:border-dark-border-primary">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-light-text-primary dark:text-dark-text-primary">Test Chat Bots</h1>
+            <h1 className="text-2xl font-bold text-light-text-primary dark:text-dark-text-primary">Test Agents</h1>
             <p className="mt-2 text-light-text-secondary dark:text-dark-text-secondary">
-              Select a chat bot to start testing
+              Select an agent to start testing
             </p>
           </div>
         </div>
       </div>
 
-      {/* Chat Bots List */}
+      {/* Agents List */}
       <div className="px-4 md:px-6 py-6 md:py-8">
         {chats.length === 0 ? (
           <div className="text-center py-12">
             <ChatBubbleLeftRightIcon className="mx-auto h-12 w-12 text-light-text-quaternary dark:text-dark-text-quaternary" />
-            <h3 className="mt-2 text-sm font-medium text-light-text-primary dark:text-dark-text-primary">No chat bots available for testing</h3>
+            <h3 className="mt-2 text-sm font-medium text-light-text-primary dark:text-dark-text-primary">No agents available for testing</h3>
             <p className="mt-1 text-sm text-light-text-quaternary dark:text-dark-text-quaternary">
-              Create your first chat bot to start testing
+              Create your first agent to start testing
             </p>
             <button
               onClick={handleCreateNew}
@@ -121,9 +121,9 @@ const TestPage: React.FC = () => {
         )}
       </div>
 
-      {/* Chatbot Wizard */}
+      {/* Agent Wizard */}
       {isWizardOpen && (
-        <ChatbotWizard
+        <AgentWizard
           isOpen={isWizardOpen}
           onClose={handleWizardClose}
           onSuccess={handleWizardSuccess}

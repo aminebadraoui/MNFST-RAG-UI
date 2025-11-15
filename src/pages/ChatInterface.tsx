@@ -255,7 +255,7 @@ const ChatInterface: React.FC = () => {
             onClick={handleBackToBots}
             className="mt-4 text-primary-600 dark:text-primary-400 hover:underline"
           >
-            Back to Chat Bots
+            Back to Agents
           </button>
         </div>
       </div>

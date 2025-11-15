@@ -4,7 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { SettingsProvider } from './context/SettingsContext';
 import { RoutePreserver, ProtectedRoute, RoleBasedRoute } from './components/auth';
 import LoginPage from './pages/LoginPage';
-import ChatBotsPage from './pages/ChatBotsPage';
+import AgentsPage from './pages/AgentsPage';
 import TestPage from './pages/TestPage';
 import ChatInterface from './pages/ChatInterface';
 import DocumentsPage from './pages/DocumentsPage';
@@ -40,7 +40,7 @@ function App() {
                 <AppLayout>
                   <RoleBasedRoute
                     roles={['superadmin', 'tenant_admin', 'user']}
-                    element={<ChatBotsPage />}
+                    element={<AgentsPage />}
                     fallback={<Navigate to="/chat" replace />}
                   />
                 </AppLayout>

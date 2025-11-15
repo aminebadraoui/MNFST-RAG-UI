@@ -285,7 +285,7 @@ const ChatPage: React.FC = () => {
       <div className="w-1/5 bg-light-bg-primary dark:bg-dark-bg-secondary border-r border-light-border-primary dark:border-dark-border-primary flex flex-col">
         <div className="p-4 border-b border-light-border-primary dark:border-dark-border-primary flex-shrink-0">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-light-text-primary dark:text-dark-text-primary">Chat Bots</h2>
+            <h2 className="text-lg font-semibold text-light-text-primary dark:text-dark-text-primary">Agents</h2>
             {user?.role === 'tenant_admin' && (
               <button
                 onClick={() => handleChatConfig(null)}

@@ -10,7 +10,7 @@ import {
 import { chatAPI } from '../../services';
 import { Chat, CreateChatRequest, UpdateChatRequest } from '../../types';
 
-interface ChatbotWizardProps {
+interface AgentWizardProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: (chat: Chat) => void;
@@ -31,7 +31,7 @@ interface FormErrors {
 
 type WizardStep = 'name' | 'systemPrompt' | 'review';
 
-const ChatbotWizard: React.FC<ChatbotWizardProps> = ({
+const AgentWizard: React.FC<AgentWizardProps> = ({
   isOpen,
   onClose,
   onSuccess,
@@ -69,7 +69,7 @@ const ChatbotWizard: React.FC<ChatbotWizardProps> = ({
     const newErrors: FormErrors = {};
 
     if (currentStep === 'name' && !formData.name.trim()) {
-      newErrors.name = 'Chat name is required';
+      newErrors.name = 'Agent name is required';
     }
 
     setErrors(newErrors);
@@ -143,11 +143,11 @@ const ChatbotWizard: React.FC<ChatbotWizardProps> = ({
       }
     } catch (error: any) {
       console.error('Error saving chat:', error);
-      let errorMessage = 'Failed to save chat. Please try again.';
+      let errorMessage = 'Failed to save agent. Please try again.';
       
       if (error.message) {
         if (error.message.includes('already exists')) {
-          errorMessage = 'A chat with this name already exists.';
+          errorMessage = 'An agent with this name already exists.';
         }
       }
       
@@ -184,7 +184,7 @@ const ChatbotWizard: React.FC<ChatbotWizardProps> = ({
   const getStepTitle = () => {
     switch (currentStep) {
       case 'name':
-        return 'Step 1: Chatbot Name';
+        return 'Step 1: Agent Name';
       case 'systemPrompt':
         return 'Step 2: System Prompt';
       case 'review':
@@ -197,11 +197,11 @@ const ChatbotWizard: React.FC<ChatbotWizardProps> = ({
   const getStepDescription = () => {
     switch (currentStep) {
       case 'name':
-        return 'Choose a name for your chatbot that reflects its purpose';
+        return 'Choose a name for your agent that reflects its purpose';
       case 'systemPrompt':
-        return 'Define the personality and behavior of your chatbot';
+        return 'Define personality and behavior of your agent';
       case 'review':
-        return 'Review your chatbot configuration before creating';
+        return 'Review your agent configuration before creating';
       default:
         return '';
     }
@@ -214,7 +214,7 @@ const ChatbotWizard: React.FC<ChatbotWizardProps> = ({
           <div className="space-y-6">
             <div>
               <label className="block text-lg font-medium text-light-text-primary dark:text-dark-text-primary mb-2">
-                Chatbot Name
+                Agent Name
               </label>
               <input
                 type="text"
@@ -223,7 +223,7 @@ const ChatbotWizard: React.FC<ChatbotWizardProps> = ({
                 className={`w-full px-4 py-3 text-lg border border-light-border-primary dark:border-dark-border-primary rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-light-bg-primary dark:bg-dark-bg-secondary text-light-text-primary dark:text-dark-text-primary ${
                   errors.name ? 'border-red-300 dark:border-red-800 focus:ring-red-500 focus:border-red-500' : ''
                 }`}
-                placeholder="e.g., Customer Support Bot"
+                placeholder="e.g., Customer Support Agent"
                 disabled={isSubmitting}
                 autoFocus
               />
@@ -231,7 +231,7 @@ const ChatbotWizard: React.FC<ChatbotWizardProps> = ({
                 <p className="mt-2 text-sm text-red-600 dark:text-red-400">{errors.name}</p>
               )}
               <p className="mt-2 text-sm text-light-text-quaternary dark:text-dark-text-quaternary">
-                This is the display name for your chatbot
+                This is the display name for your agent
               </p>
             </div>
           </div>
@@ -275,7 +275,7 @@ const ChatbotWizard: React.FC<ChatbotWizardProps> = ({
           <div className="space-y-6">
             <div className="bg-light-bg-secondary dark:bg-dark-bg-secondary rounded-lg p-6">
               <h3 className="text-lg font-medium text-light-text-primary dark:text-dark-text-primary mb-4">
-                Chatbot Configuration
+                Agent Configuration
               </h3>
               <div className="space-y-4">
                 <div>
@@ -322,7 +322,7 @@ const ChatbotWizard: React.FC<ChatbotWizardProps> = ({
               </button>
               <div className="ml-4">
                 <h2 className="text-xl font-semibold text-light-text-primary dark:text-dark-text-primary">
-                  {chat ? 'Edit Chatbot' : 'Create New Chatbot'}
+                  {chat ? 'Edit Agent' : 'Create New Agent'}
                 </h2>
                 <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">
                   {getStepDescription()}
@@ -379,10 +379,10 @@ const ChatbotWizard: React.FC<ChatbotWizardProps> = ({
                     <ChatBubbleLeftRightIcon className="h-8 w-8 text-green-600 dark:text-green-400" />
                   </div>
                   <h3 className="text-2xl font-bold text-light-text-primary dark:text-dark-text-primary mb-4">
-                    {chat ? 'Chatbot Updated Successfully!' : 'Chatbot Created Successfully!'}
+                    {chat ? 'Agent Updated Successfully!' : 'Agent Created Successfully!'}
                   </h3>
                   <div className="mt-6 p-6 bg-light-bg-secondary dark:bg-dark-bg-secondary rounded-lg text-left max-w-md mx-auto">
-                    <h4 className="font-medium text-light-text-primary dark:text-dark-text-primary mb-3">Chatbot Details:</h4>
+                    <h4 className="font-medium text-light-text-primary dark:text-dark-text-primary mb-3">Agent Details:</h4>
                     <div className="space-y-2">
                       <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">
                         <strong>Name:</strong> {createdChat.name}
@@ -432,7 +432,7 @@ const ChatbotWizard: React.FC<ChatbotWizardProps> = ({
                       disabled={isSubmitting}
                       className="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {isSubmitting ? (chat ? 'Updating...' : 'Creating...') : (chat ? 'Update Chatbot' : 'Create Chatbot')}
+                      {isSubmitting ? (chat ? 'Updating...' : 'Creating...') : (chat ? 'Update Agent' : 'Create Agent')}
                     </button>
                   ) : (
                     <button
@@ -455,4 +455,4 @@ const ChatbotWizard: React.FC<ChatbotWizardProps> = ({
   );
 };
 
-export { ChatbotWizard };
+export { AgentWizard };

@@ -32,7 +32,7 @@ const LoginPage: React.FC = () => {
             MNFST RAG Dashboard
           </h2>
           <p className="text-light-text-tertiary dark:text-dark-text-tertiary max-w-sm mx-auto">
-            Sign in to manage your chatbot and documents
+            Sign in to manage your agent and documents
           </p>
         </div>
         

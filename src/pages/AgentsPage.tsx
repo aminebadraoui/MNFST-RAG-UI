@@ -5,9 +5,9 @@ import { PlusIcon, ChatBubbleLeftRightIcon, CogIcon } from '@heroicons/react/24/
 import { chatAPI } from '../services';
 import { Chat } from '../types';
 import { useAuth } from '../context';
-import { ChatbotWizard } from '../components/ui';
+import { AgentWizard } from '../components/ui';
 
-const ChatBotsPage: React.FC = () => {
+const AgentsPage: React.FC = () => {
   const [chats, setChats] = useState<Chat[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isWizardOpen, setIsWizardOpen] = useState(false);
@@ -32,18 +32,18 @@ const ChatBotsPage: React.FC = () => {
     fetchChats();
   }, []);
 
-  // Check if we should open the wizard for creating a new chatbot
+  // Check if we should open wizard for creating a new agent
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     if (urlParams.get('create') === 'true') {
       handleChatConfig(null);
-      // Clean up the URL
+      // Clean up URL
       navigate('/chat', { replace: true });
     }
   }, [location.search, navigate]);
 
   const handleChatClick = (chatId: string) => {
-    // In Build category, clicking a chatbot opens the wizard for editing
+    // In Build category, clicking an agent opens wizard for editing
     const chat = chats.find(c => c.id === chatId);
     if (chat) {
       handleChatConfig(chat);
@@ -81,9 +81,9 @@ const ChatBotsPage: React.FC = () => {
       <div className="px-6 py-8 border-b border-light-border-primary dark:border-dark-border-primary">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-light-text-primary dark:text-dark-text-primary">Build Chat Bots</h1>
+            <h1 className="text-2xl font-bold text-light-text-primary dark:text-dark-text-primary">Build Agents</h1>
             <p className="mt-2 text-light-text-secondary dark:text-dark-text-secondary">
-              Create and configure your chat bots
+              Create and configure your agents
             </p>
           </div>
           {user?.role === 'tenant_admin' && (
@@ -92,22 +92,22 @@ const ChatBotsPage: React.FC = () => {
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-primary-600 dark:text-primary-400 bg-primary-100 dark:bg-primary-900/30 hover:bg-primary-200 dark:hover:bg-primary-800/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
             >
               <PlusIcon className="h-5 w-5 mr-2" />
-              New Bot
+              New Agent
             </button>
           )}
         </div>
       </div>
 
-      {/* Chat Bots List */}
+      {/* Agents List */}
       <div className="px-4 md:px-6 py-6 md:py-8">
         {chats.length === 0 ? (
           <div className="text-center py-12">
             <ChatBubbleLeftRightIcon className="mx-auto h-12 w-12 text-light-text-quaternary dark:text-dark-text-quaternary" />
-            <h3 className="mt-2 text-sm font-medium text-light-text-primary dark:text-dark-text-primary">No chat bots available</h3>
+            <h3 className="mt-2 text-sm font-medium text-light-text-primary dark:text-dark-text-primary">No agents available</h3>
             <p className="mt-1 text-sm text-light-text-quaternary dark:text-dark-text-quaternary">
               {user?.role === 'tenant_admin'
-                ? 'Create your first chat bot to get started'
-                : 'Contact your administrator to add chat bots'
+                ? 'Create your first agent to get started'
+                : 'Contact your administrator to add agents'
               }
             </p>
             {user?.role === 'tenant_admin' && (
@@ -116,7 +116,7 @@ const ChatBotsPage: React.FC = () => {
                 className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-primary-600 dark:text-primary-400 bg-primary-100 dark:bg-primary-900/30 hover:bg-primary-200 dark:hover:bg-primary-800/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
               >
                 <PlusIcon className="h-5 w-5 mr-2" />
-                Create Your First Bot
+                Create Your First Agent
               </button>
             )}
           </div>
@@ -159,9 +159,9 @@ const ChatBotsPage: React.FC = () => {
         )}
       </div>
 
-      {/* Chatbot Wizard */}
+      {/* Agent Wizard */}
       {isWizardOpen && (
-        <ChatbotWizard
+        <AgentWizard
           isOpen={isWizardOpen}
           onClose={() => setIsWizardOpen(false)}
           onSuccess={handleChatConfigSave}
@@ -173,4 +173,4 @@ const ChatBotsPage: React.FC = () => {
   );
 };
 
-export default ChatBotsPage;
+export default AgentsPage;

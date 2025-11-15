@@ -7,7 +7,7 @@ A simplified multi-tenant MNFST RAG SaaS solution built with React and TypeScrip
 A streamlined multi-tenant MNFST RAG system with three user roles:
 - **Superadmin**: Creates and manages tenants
 - **Tenant Admin**: Manages documents, social media, and users for their tenant  
-- **User**: Accesses chatbot with tenant-specific knowledge base
+- **User**: Accesses agent with tenant-specific knowledge base
 
 Perfect for self-hosting with PostgreSQL database and compatible with various backend frameworks including FastAPI.
 
@@ -114,7 +114,7 @@ graph TD
     E --> G[Manage Social Media]
     E --> H[Manage Tenant Users]
     
-    I[User] --> J[Access Chatbot]
+    I[User] --> J[Access Agent]
     I --> K[Chat with Knowledge Base]
     
     L[Tenant Data] --> M[Row Level Security]
