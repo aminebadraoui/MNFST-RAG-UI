@@ -27,8 +27,9 @@ const DocumentsPage: React.FC = () => {
       try {
         setIsLoading(true);
         setError(null);
-        const response = await documentAPI.getDocuments();
-        setDocuments(response.documents);
+        const documents = await documentAPI.getDocuments();
+        // Ensure we always set an array
+        setDocuments(Array.isArray(documents) ? documents : []);
       } catch (err: any) {
         setError(err.message || 'Failed to load documents');
       } finally {
@@ -118,7 +119,13 @@ const DocumentsPage: React.FC = () => {
     const files = Array.from(e.dataTransfer.files) as File[];
     if (files.length === 0) return;
     
+    await handleFileUpload(files);
+  };
+
+  const handleFileUpload = async (files: File[]) => {
     try {
+      setError(null);
+      
       // Upload all files using the R2-based flow
       await documentAPI.uploadDocuments(files, (progress: number) => {
         // For now, we'll just log progress - could be enhanced with UI progress bar
@@ -126,11 +133,14 @@ const DocumentsPage: React.FC = () => {
       });
       
       // Refresh documents list
-      const response = await documentAPI.getDocuments();
-      setDocuments(response.documents);
+      const documents = await documentAPI.getDocuments();
+      // Ensure we always set an array
+      setDocuments(Array.isArray(documents) ? documents : []);
     } catch (err: any) {
       // Enhanced error handling for R2-specific errors
-      if (err.message.includes('presigned')) {
+      if (err.message.includes('Validation failed')) {
+        setError(err.message);
+      } else if (err.message.includes('presigned')) {
         setError('Failed to get upload permission. Please try again.');
       } else if (err.message.includes('status 4')) {
         setError('File upload failed. Please check the file format and size.');
@@ -142,14 +152,30 @@ const DocumentsPage: React.FC = () => {
     }
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    handleFileUpload(Array.from(files));
+  };
+
   const handleDeleteDocument = async (documentId: string) => {
     try {
       await documentAPI.deleteDocument(documentId);
       // Refresh documents list
-      const response = await documentAPI.getDocuments();
-      setDocuments(response.documents);
+      const documents = await documentAPI.getDocuments();
+      // Ensure we always set an array
+      setDocuments(Array.isArray(documents) ? documents : []);
     } catch (err: any) {
       setError(err.message || 'Failed to delete document');
+    }
+  };
+
+  const handleViewDocument = (publicUrl: string) => {
+    if (publicUrl) {
+      window.open(publicUrl, '_blank');
+    } else {
+      setError('Document URL not available');
     }
   };
 
@@ -177,13 +203,21 @@ const DocumentsPage: React.FC = () => {
           <ArrowUpTrayIcon className="mx-auto h-12 w-12 text-light-text-quaternary dark:text-dark-text-quaternary" />
           <p className="mt-2 text-sm text-light-text-secondary dark:text-dark-text-secondary">
             Drag and drop your documents here, or{' '}
-            <button className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300">
+            <label htmlFor="file-upload" className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 cursor-pointer">
               click to browse
-            </button>
+            </label>
           </p>
           <p className="text-xs text-light-text-tertiary dark:text-dark-text-tertiary mt-1">
             Supports PDF, DOCX, TXT, and Markdown files up to 10MB
           </p>
+          <input
+            id="file-upload"
+            type="file"
+            multiple
+            accept=".pdf,.docx,.txt,.md,.markdown,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
         </div>
       </div>
 
@@ -275,16 +309,22 @@ const DocumentsPage: React.FC = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-light-text-tertiary dark:text-dark-text-tertiary">
-                        {new Date(doc.uploadedAt).toLocaleDateString()}
+                        {doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString() :
+                         (doc as any).created_at ? new Date((doc as any).created_at).toLocaleDateString() : 'N/A'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
-                          <button className="text-primary-600 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300">
+                          <button
+                            className="text-primary-600 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300"
+                            onClick={() => handleViewDocument(doc.publicUrl || '')}
+                            title="View Document"
+                          >
                             <EyeIcon className="h-5 w-5" />
                           </button>
                           <button
                             className="text-red-600 hover:text-red-900 dark:hover:text-red-400"
                             onClick={() => handleDeleteDocument(doc.id)}
+                            title="Delete Document"
                           >
                             <TrashIcon className="h-5 w-5" />
                           </button>

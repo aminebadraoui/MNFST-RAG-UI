@@ -8,6 +8,8 @@ export interface Document {
   uploadedAt: string;
   processedAt?: string;
   error?: string;
+  fileKey?: string;
+  publicUrl?: string;
 }
 
 export interface GetDocumentsResponse {
@@ -48,17 +50,17 @@ export interface MultipleUploadProgressCallback {
 
 // R2-specific interfaces for Cloudflare R2 integration
 export interface PresignedUrlResponse {
-  upload_url: string;
-  file_key: string;
-  document_id: string;
-  public_url: string;
+  uploadUrl: string;
+  fileKey: string;
+  documentId: string;
+  publicUrl: string;
 }
 
 export interface RegisterUploadRequest {
-  document_id: string;
-  file_name: string;
-  file_key: string;
-  public_url: string;
-  file_size: number;
-  mime_type: string;
+  documentId: string;
+  fileName: string;
+  fileKey: string;
+  publicUrl: string;
+  fileSize: number;
+  mimeType: string;
 }

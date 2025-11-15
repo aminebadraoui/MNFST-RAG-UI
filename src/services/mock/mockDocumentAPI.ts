@@ -42,21 +42,21 @@ export const mockDocumentAPI = {
     const fileKey = `tenant-123/${file.name}`;
     
     return {
-      upload_url: `https://mock-r2-upload-url.com/${fileKey}`,
-      file_key: fileKey,
-      document_id: documentId,
-      public_url: `https://mock-r2-public-url.com/${fileKey}`
+      uploadUrl: `https://mock-r2-upload-url.com/${fileKey}`,
+      fileKey: fileKey,
+      documentId: documentId,
+      publicUrl: `https://mock-r2-public-url.com/${fileKey}`
     };
   },
 
   // NEW: Mock implementation for registering upload
   registerUpload: async (uploadData: RegisterUploadRequest): Promise<Document> => {
     const document: Document = {
-      id: uploadData.document_id,
-      filename: uploadData.file_name,
-      originalName: uploadData.file_name,
-      size: uploadData.file_size,
-      mimeType: uploadData.mime_type,
+      id: uploadData.documentId,
+      filename: uploadData.fileName,
+      originalName: uploadData.fileName,
+      size: uploadData.fileSize,
+      mimeType: uploadData.mimeType,
       status: 'uploaded',
       uploadedAt: new Date().toISOString()
     };

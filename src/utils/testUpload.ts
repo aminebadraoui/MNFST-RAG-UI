@@ -47,16 +47,16 @@ export async function testPresignedUrlGeneration(file: File): Promise<PresignedU
     const presignedData = await documentAPI.getPresignedUrl(file);
     
     // Validate response structure
-    if (!presignedData.upload_url || !presignedData.file_key || 
-        !presignedData.document_id || !presignedData.public_url) {
+    if (!presignedData.uploadUrl || !presignedData.fileKey ||
+        !presignedData.documentId || !presignedData.publicUrl) {
       throw new Error('Invalid presigned URL response structure');
     }
     
     console.log('✅ Presigned URL generation successful:', {
-      fileKey: presignedData.file_key,
-      documentId: presignedData.document_id,
-      hasUploadUrl: !!presignedData.upload_url,
-      hasPublicUrl: !!presignedData.public_url
+      fileKey: presignedData.fileKey,
+      documentId: presignedData.documentId,
+      hasUploadUrl: !!presignedData.uploadUrl,
+      hasPublicUrl: !!presignedData.publicUrl
     });
     
     return presignedData;
@@ -75,12 +75,12 @@ export async function testUploadRegistration(
 ): Promise<void> {
   try {
     const uploadData: RegisterUploadRequest = {
-      document_id: presignedData.document_id,
-      file_name: file.name,
-      file_key: presignedData.file_key,
-      public_url: presignedData.public_url,
-      file_size: file.size,
-      mime_type: file.type
+      documentId: presignedData.documentId,
+      fileName: file.name,
+      fileKey: presignedData.fileKey,
+      publicUrl: presignedData.publicUrl,
+      fileSize: file.size,
+      mimeType: file.type
     };
     
     const document = await documentAPI.registerUpload(uploadData);
