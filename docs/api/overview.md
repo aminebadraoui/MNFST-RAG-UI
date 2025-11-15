@@ -579,6 +579,8 @@ Authorization: Bearer <access-token>
       "title": "Getting Started with RAG",
       "createdAt": "2024-01-01T10:00:00Z",
       "updatedAt": "2024-01-01T10:30:00Z",
+      "chatId": "chat_123",
+      "userId": "user_456",
       "messageCount": 12
     }
   ]
@@ -606,6 +608,8 @@ Content-Type: application/json
     "title": "New Chat Session",
     "createdAt": "2024-01-01T11:00:00Z",
     "updatedAt": "2024-01-01T11:00:00Z",
+    "chatId": "chat_123",
+    "userId": "user_456",
     "messageCount": 0
   }
 }
