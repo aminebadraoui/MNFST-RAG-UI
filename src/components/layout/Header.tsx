@@ -91,10 +91,10 @@ const Header: React.FC = () => {
                   Dashboard
                 </Link>
                 <Link
-                  to="/chat"
+                  to="/build"
                   className="text-light-text-tertiary dark:text-dark-text-tertiary hover:text-light-text-primary dark:hover:text-dark-text-primary hover:bg-light-bg-tertiary dark:hover:bg-dark-bg-tertiary px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
-                  Chat
+                  Build
                 </Link>
                 {(user?.role === 'tenant_admin') && (
                   <>
@@ -222,10 +222,10 @@ const Header: React.FC = () => {
                 Dashboard
               </Link>
               <Link
-                to="/chat"
+                to="/build"
                 className="block px-3 py-2 rounded-md text-base font-medium text-light-text-secondary dark:text-dark-text-secondary hover:text-light-text-primary dark:hover:text-dark-text-primary hover:bg-light-bg-tertiary dark:hover:bg-dark-bg-tertiary"
               >
-                Chat
+                Build
               </Link>
               {(user?.role === 'tenant_admin') && (
                 <>

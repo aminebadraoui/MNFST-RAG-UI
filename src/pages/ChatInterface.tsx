@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ChatBubbleLeftRightIcon, UserIcon, PaperAirplaneIcon, PlusIcon, ArrowLeftIcon, Bars3Icon } from '@heroicons/react/24/outline';
 import { chatAPI } from '../services';
 import { Session, Message, StreamChunk, Chat } from '../types';
@@ -11,6 +11,10 @@ import { generateMessageId } from '../utils/uuid';
 const ChatInterface: React.FC = () => {
   const { chatId } = useParams<{ chatId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Determine if we're in test route
+  const isTestRoute = location.pathname.startsWith('/test/');
   
   const [sessions, setSessions] = useState<Session[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string>('');
@@ -38,7 +42,7 @@ const ChatInterface: React.FC = () => {
         setChat(response);
       } catch (error) {
         console.error('Failed to fetch chat:', error);
-        navigate('/chat');
+        navigate('/build');
       }
     };
 
@@ -235,7 +239,11 @@ const ChatInterface: React.FC = () => {
   };
 
   const handleBackToBots = () => {
-    navigate('/chat');
+    if (isTestRoute) {
+      navigate('/test');
+    } else {
+      navigate('/build');
+    }
   };
 
   if (isLoading) {
@@ -288,7 +296,7 @@ const ChatInterface: React.FC = () => {
               className="inline-flex items-center text-sm text-light-text-secondary dark:text-dark-text-secondary hover:text-light-text-primary dark:hover:text-dark-text-primary transition-colors"
             >
               <ArrowLeftIcon className="h-4 w-4 mr-1" />
-              Back to Bots
+              {isTestRoute ? 'Back to Test' : 'Back to Build'}
             </button>
             <button
               onClick={() => setIsMobileSessionsOpen(false)}

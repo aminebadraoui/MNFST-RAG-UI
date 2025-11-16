@@ -12,7 +12,7 @@ interface RoleBasedRouteProps {
 const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({
   roles,
   element,
-  fallback = <Navigate to="/chat" replace />
+  fallback = <Navigate to="/build" replace />
 }) => {
   const { user, isLoading, isInitialized } = useAuth();
 

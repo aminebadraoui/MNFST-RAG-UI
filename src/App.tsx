@@ -30,29 +30,18 @@ function App() {
                   <RoleBasedRoute
                     roles={['superadmin']}
                     element={<Navigate to="/tenants" replace />}
-                    fallback={<Navigate to="/chat" replace />}
+                    fallback={<Navigate to="/build" replace />}
                   />
                 </AppLayout>
               </ProtectedRoute>
             } />
-            <Route path="/chat" element={
+            <Route path="/build" element={
               <ProtectedRoute>
                 <AppLayout>
                   <RoleBasedRoute
                     roles={['superadmin', 'tenant_admin', 'user']}
                     element={<AgentsPage />}
-                    fallback={<Navigate to="/chat" replace />}
-                  />
-                </AppLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/chat/:chatId" element={
-              <ProtectedRoute>
-                <AppLayout>
-                  <RoleBasedRoute
-                    roles={['superadmin', 'tenant_admin', 'user']}
-                    element={<ChatInterface />}
-                    fallback={<Navigate to="/chat" replace />}
+                    fallback={<Navigate to="/build" replace />}
                   />
                 </AppLayout>
               </ProtectedRoute>
@@ -63,7 +52,7 @@ function App() {
                   <RoleBasedRoute
                     roles={['superadmin', 'tenant_admin']}
                     element={<DocumentsPage />}
-                    fallback={<Navigate to="/chat" replace />}
+                    fallback={<Navigate to="/build" replace />}
                   />
                 </AppLayout>
               </ProtectedRoute>
@@ -74,7 +63,7 @@ function App() {
                   <RoleBasedRoute
                     roles={['superadmin', 'tenant_admin']}
                     element={<TrainPage />}
-                    fallback={<Navigate to="/chat" replace />}
+                    fallback={<Navigate to="/build" replace />}
                   />
                 </AppLayout>
               </ProtectedRoute>
@@ -85,7 +74,18 @@ function App() {
                   <RoleBasedRoute
                     roles={['superadmin', 'tenant_admin', 'user']}
                     element={<TestPage />}
-                    fallback={<Navigate to="/chat" replace />}
+                    fallback={<Navigate to="/build" replace />}
+                  />
+                </AppLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/test/:chatId" element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <RoleBasedRoute
+                    roles={['superadmin', 'tenant_admin', 'user']}
+                    element={<ChatInterface />}
+                    fallback={<Navigate to="/build" replace />}
                   />
                 </AppLayout>
               </ProtectedRoute>
@@ -96,7 +96,7 @@ function App() {
                   <RoleBasedRoute
                     roles={['superadmin', 'tenant_admin']}
                     element={<SocialPage />}
-                    fallback={<Navigate to="/chat" replace />}
+                    fallback={<Navigate to="/build" replace />}
                   />
                 </AppLayout>
               </ProtectedRoute>
@@ -107,7 +107,7 @@ function App() {
                   <RoleBasedRoute
                     roles={['superadmin', 'tenant_admin', 'user']}
                     element={<SettingsPage />}
-                    fallback={<Navigate to="/chat" replace />}
+                    fallback={<Navigate to="/build" replace />}
                   />
                 </AppLayout>
               </ProtectedRoute>
@@ -118,7 +118,7 @@ function App() {
                   <RoleBasedRoute
                     roles={['superadmin']}
                     element={<TenantsPage />}
-                    fallback={<Navigate to="/chat" replace />}
+                    fallback={<Navigate to="/build" replace />}
                   />
                 </AppLayout>
               </ProtectedRoute>
@@ -129,7 +129,7 @@ function App() {
                   <RoleBasedRoute
                     roles={['superadmin', 'tenant_admin']}
                     element={<UsersPage />}
-                    fallback={<Navigate to="/chat" replace />}
+                    fallback={<Navigate to="/build" replace />}
                   />
                 </AppLayout>
               </ProtectedRoute>

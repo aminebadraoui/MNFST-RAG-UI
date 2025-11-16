@@ -166,7 +166,7 @@ const AgentWizard: React.FC<AgentWizardProps> = ({
       if (source === 'test') {
         navigate('/test');
       } else {
-        navigate('/chat');
+        navigate('/build');
       }
     }
   };
@@ -176,7 +176,7 @@ const AgentWizard: React.FC<AgentWizardProps> = ({
     if (source === 'test') {
       navigate('/test');
     } else {
-      navigate('/chat');
+      navigate('/build');
     }
     onClose();
   };

@@ -31,7 +31,7 @@ const TestPage: React.FC = () => {
   }, []);
 
   const handleChatClick = (chatId: string) => {
-    navigate(`/chat/${chatId}`);
+    navigate(`/test/${chatId}`);
   };
 
   const handleCreateNew = () => {

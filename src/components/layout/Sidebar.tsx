@@ -52,9 +52,9 @@ const Sidebar: React.FC<SidebarProps> = ({
     // Build Category - accessible to all authenticated users
     items.push({
       name: 'Build',
-      href: '/chat',
+      href: '/build',
       icon: ChatBubbleLeftIcon,
-      current: location.pathname === '/chat' || location.pathname.startsWith('/chat/'),
+      current: location.pathname === '/build' || location.pathname.startsWith('/build/'),
     });
 
     // Train Category - only for tenant_admin and superadmin

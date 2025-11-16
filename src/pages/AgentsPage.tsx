@@ -38,7 +38,7 @@ const AgentsPage: React.FC = () => {
     if (urlParams.get('create') === 'true') {
       handleChatConfig(null);
       // Clean up URL
-      navigate('/chat', { replace: true });
+      navigate('/build', { replace: true });
     }
   }, [location.search, navigate]);
 
